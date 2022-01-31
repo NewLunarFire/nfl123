@@ -70,7 +70,7 @@ def upgrade():
         sa.Column("score", sa.Integer, nullable=False, default=0),
         sa.Column("good_picks", sa.Integer, nullable=False, default=0),
     )
-    op.create_table(
+    matches_table = op.create_table(
         "matches",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("week", sa.Integer, nullable=False),
@@ -105,6 +105,19 @@ def upgrade():
         ),
         sa.Column("pick", sa.Integer, nullable=False),
     )
+
+    matches = [
+        {
+            "week": 1,
+            "home_team": x,
+            "away_team": 33 - x,
+            "start_time": datetime.utcnow(),
+        }
+        for x in range(1, 17)
+    ]
+    print(matches)
+    op.bulk_insert(matches_table, matches)
+
     pass
 
 

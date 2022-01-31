@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pool NFL 2021</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style type="text/css">
+        input:checked + label {
+            border: 1px solid green;
+        }
+
+        input[type=radio] {
+            display: none;
+        }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+        <div class="navbar-brand"><a class="navbar-item" href="/">Pool NFL - {{ name }}</a></div>
+    </nav>
+    <section class="section">
+        <form class="container" action="/week/{{ week }}" method="POST">
+            <h1 class="subtitle">Matchs - Week {{ week }}</h1>
+            {% for match in matches %}
+            <div>
+                <div class="columns is-mobile">
+                    <input type="radio" id="match_{{ match.id }}_away" name="match_{{ match.id }}" value="away" {% if predictions[match.id] == "away" %}checked="checked"{% endif %}>
+                    <label class="column" style="text-align: right;" for="match_{{ match.id }}_away">{{ match.away_team }}</label>
+                    <div class="column is-narrow">@</div>
+                    <input type="radio" id="match_{{ match.id }}_home" name="match_{{ match.id }}" value="home" {% if predictions[match.id] == "home" %}checked="checked"{% endif %}>
+                    <label class="column" style="text-align: left;" for="match_{{ match.id }}_home">{{ match.home_team }}</div>
+                </div>
+                <div class="columns is-mobile">
+                    <div class="column is-full" style="text-align: center;">{{ match.start_time }}</div>
+                </div>
+            </div>
+            {% endfor %}
+            <input type="submit" value="Submit" />
+        </form>
+    </section>
+  </body>
+</html>
