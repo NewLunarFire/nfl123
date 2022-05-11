@@ -1,41 +1,31 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pool NFL 2021</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-  </head>
-  <body>
-    <nav class="navbar">
-        <div class="navbar-brand"><a class="navbar-item" href="/">Pool NFL - {{ name }}</a></div>
-    </nav>
-    <section class="section">
-        <div class="container">
-            <h1 class="subtitle">Matchs</h1>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Week</th>
-                        <th>Home</th>
-                        <th>Away</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for match in matches %}
-                    <tr>
-                        <td>{{ match.id }}</td>
-                        <td>{{ match.week }}</td>
-                        <td>{{ match.home_team }}</td>
-                        <td>{{ match.away_team }}</td>
-                        <td>{{ match.start_time }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
-  </body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="subtitle">Matchs</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Week</th>
+                    <th>Home</th>
+                    <th>Away</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in matches %}
+                <tr>
+                    <td>{{ match.id }}</td>
+                    <td>{{ match.week }}</td>
+                    <td>{{ match.home_team }}</td>
+                    <td>{{ match.away_team }}</td>
+                    <td>{{ match.start_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
