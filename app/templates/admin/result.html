@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section">
+    <form class="container" action="/admin/result/{{ week }}" method="POST">
+        <h1 class="subtitle">Enter results</h1>
+        {% include 'components/pagination.html' %}
+        {% for match in matches %}
+        <div>
+            <div class="columns is-mobile">
+                <div class="column">
+                    <input type="text" id="match_{{ match.id }}_away" name="match_{{ match.id }}_away" size="2" value="{{ match.away_score }}"></input>
+                </div>
+                <div class="column" style="text-align: right;">
+                    <label for="match_{{ match.id }}_away">{{ match.away_team }}</label>
+                </div>
+                <div class="column">
+                    <input type="checkbox" id="match_{{ match.id }}_ot" name="match_{{ match.id }}_ot" {% if match.ot %}checked="checked"{% endif %}>OT</input>
+                </div>
+                <div class="column" style="text-align: left;">
+                    <label for="match_{{ match.id }}_home">{{ match.home_team }}</label>
+                </div>
+                <div class="column">
+                    <input type="text" id="match_{{ match.id }}_home" name="match_{{ match.id }}_home" size="2" value="{{ match.home_score }}"></input>
+                </div>
+            </div>
+            <!--
+            <div class="columns is-mobile">
+                <div class="column is-full" style="text-align: center;">{{ match.start_time }}</div>
+            </div>
+            -->
+        </div>
+        {% endfor %}
+        <input type="submit" value="Submit" />
+    </div>
+</section>
+{% endblock %}

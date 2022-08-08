@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.types import DateTime
 from .database import Base
 
@@ -18,6 +19,19 @@ class Match(Base):
     home_team = Column("home_team", Integer, nullable=False)
     away_team = Column("away_team", Integer, nullable=False)
     start_time = Column("start_time", DateTime, nullable=False)
+
+    result = relationship("MatchResult", uselist=False)
+
+
+class MatchResult(Base):
+    __tablename__ = "match_results"
+
+    match_id = Column("match_id", Integer, ForeignKey("matches.id"), primary_key=True)
+    result_type = Column("result_type", Integer, nullable=False)
+    home_score = Column("home_score", Integer, nullable=False)
+    away_score = Column("away_score", Integer, nullable=False)
+
+    match = relationship("Match", uselist=False)
 
 
 class Team(Base):

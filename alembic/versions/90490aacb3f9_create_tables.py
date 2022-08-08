@@ -115,7 +115,6 @@ def upgrade():
         }
         for x in range(1, 17)
     ]
-    print(matches)
     op.bulk_insert(matches_table, matches)
 
     pass

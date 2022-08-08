@@ -9,7 +9,35 @@
   </head>
   <body>
     <nav class="navbar">
-        <div class="navbar-brand"><a class="navbar-item" href="/">Pool NFL - {{ name }}</a></div>
+        <div class="navbar-brand"><a class="navbar-item" href="/">Pool NFL - {{ user.name }}</a></div>
+        <div id="navbarBasicExample" class="navbar-menu">
+          <a href="/index" class="navbar-item">Home</a>
+          <a href="/week/1" class="navbar-item">Week</a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link">Admin</a>
+            <div class="navbar-dropdown">
+              <a href="/admin/result" class="navbar-item">Results</a>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link">Debug</a>
+            <div class="navbar-dropdown">
+              <a href="/debug/matches" class="navbar-item">Matches</a>
+            </div>
+          </div>
+        </div>
+      </div>
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <div class="buttons">
+              {% if logged_in %}
+              <a href="/logout" class="button is-secondary"><strong>Log out</strong></a>
+              {% else %}
+              <a href="/login" class="button is-primary"><strong>Log in</strong></a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
     </nav>
     {% block content %}{% endblock %}
   </body>

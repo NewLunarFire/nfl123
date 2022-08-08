@@ -1,0 +1,11 @@
+<nav class="pagination is-centered is-rounded is-small" role="navigation" aria-label="pagination">
+    <!--<a class="pagination-previous">Previous</a>
+    <a class="pagination-next">Next</a>-->
+    <ul class="pagination-list">
+     {% for i in range(1, 19) %}
+      <li>
+        <a href="{{ i }}" class="pagination-link" aria-label="Week {{ i }}">{{ i }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </nav>

@@ -3,11 +3,27 @@
 {% block preamble %}
 <style type="text/css">
     input:checked + label {
+        border: 1px solid gray;
+    }
+
+    input:checked + label.win {
         border: 1px solid green;
+    }
+
+    input:checked + label.loss {
+        border: 1px solid red;
     }
 
     input[type=radio] {
         display: none;
+    }
+
+    div.win {
+        color: green
+    }
+
+    div.loss {
+        color: red
     }
 </style>
 {% endblock %}
@@ -16,18 +32,29 @@
 <section class="section">
     <form class="container" action="/week/{{ week }}" method="POST">
         <h1 class="subtitle">Matchs - Week {{ week }}</h1>
+        <h2>Points = <span style="color: {{ points_color(points) }}">{{ "%+d"|format(points) }}</span></h2>
+        <h2>Score = <span style="color: {{ score_color(score, total_matches) }}">{{ score }}/{{ total_matches }}</span></h2>
+
+        {% include 'components/pagination.html' %}
         {% for match in matches %}
+        {% set label_class = ('win' if match.user_win else 'loss') if 'user_win' in match else None %}
         <div>
             <div class="columns is-mobile">
-                <input type="radio" id="match_{{ match.id }}_away" name="match_{{ match.id }}" value="away" {% if predictions[match.id] == "away" %}checked="checked"{% endif %}>
-                <label class="column" style="text-align: right;" for="match_{{ match.id }}_away">{{ match.away_team }}</label>
-                <div class="column is-narrow">@</div>
-                <input type="radio" id="match_{{ match.id }}_home" name="match_{{ match.id }}" value="home" {% if predictions[match.id] == "home" %}checked="checked"{% endif %}>
-                <label class="column" style="text-align: left;" for="match_{{ match.id }}_home">{{ match.home_team }}</div>
+                <input type="radio" id="match_{{ match.id }}_away" name="match_{{ match.id }}" value="away" {% if predictions[match.id] == "away" %}checked="checked"{% endif %} {% if match.final %}disabled="disabled"{% endif %}>
+                <label class="column {{ label_class }}" style="text-align: right;" for="match_{{ match.id }}_away" >{{ match.away_team }}</label>
+                <div class="column is-narrow">{% if match.final %}{{ match.away_score }} - {{ match.home_score }}{% else %}@{% endif %}</div>
+                <input type="radio" id="match_{{ match.id }}_home" name="match_{{ match.id }}" value="home" {% if predictions[match.id] == "home" %}checked="checked"{% endif %} {% if match.final %}disabled="disabled"{% endif %}>
+                <label class="column {{ label_class }}" style="text-align: left;" for="match_{{ match.id }}_home">{{ match.home_team }}</div>
             </div>
+            {% if match.final %}
+            <div class="columns is-mobile">
+                <div class="column {{ label_class }} is-full" style="text-align: center;">{{ "%+d"|format(match.user_score) }}</div>
+            </div>
+            {% else %}
             <div class="columns is-mobile">
                 <div class="column is-full" style="text-align: center;">{{ match.start_time }}</div>
             </div>
+            {% endif %}
         </div>
         {% endfor %}
         <input type="submit" value="Submit" />
