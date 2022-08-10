@@ -1,31 +1,24 @@
+from app.repositories.user import get_user
 from functools import wraps
 
-# from flask import request
+from flask import session, redirect, url_for
 
-# decorator for verifying the JWT
-def authentication(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        print("patate poil")
-        # token = None
-        # # jwt is passed in the request header
-        # if 'x-access-token' in request.headers:
-        #     token = request.headers['x-access-token']
-        # # return 401 if token is not passed
-        # if not token:
-        #     return jsonify({'message' : 'Token is missing !!'}), 401
+def authenticated(require_admin=False):
+    def wrapper(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            user_id = session.get("user_id")
+            user = get_user(id=user_id) if user_id else None
 
-        # try:
-        #     # decoding the payload to fetch the stored details
-        #     data = jwt.decode(token, app.config['SECRET_KEY'])
-        #     current_user = User.query\
-        #         .filter_by(public_id = data['public_id'])\
-        #         .first()
-        # except:
-        #     return jsonify({
-        #         'message' : 'Token is invalid !!'
-        #     }), 401
-        # # returns the current logged in users contex to the routes
-        return f(*args, **kwargs)
+            if not user:
+                return redirect(url_for("login"))
+            
+            if require_admin:
+                if user and not user.is_admin:
+                    return redirect("/week")
+            
+            return f(user, *args, **kwargs)
 
-    return decorated
+        return decorated   
+    return wrapper
+ 

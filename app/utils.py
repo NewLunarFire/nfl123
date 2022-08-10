@@ -1,5 +1,5 @@
 from flask import render_template, session
-from app.dataclasses.user import User
+from app.repositories.user import get_user
 
 from app.i18n import tr
 
@@ -11,20 +11,10 @@ def render(template: str, **context) -> str:
 
 
 def get_session():
-    user = get_user()
-    lang = session.get("lang", "en")
-    return {"user": user, "logged_in": bool(user), "lang": lang}
-
-
-def get_user():
-    user_name = session.get("user_name")
     user_id = session.get("user_id")
-
-    return User(user_id, user_name) if user_name and user_id else None
-
+    user = get_user(id=user_id) if user_id else None
+    lang = user.lang if user else "en"
+    return {"user": user, "lang": lang}
 
 def gettext(lang: str):
     return lambda key: tr(lang, key)
-    # if lang == "en":
-
-    # return "Patate"

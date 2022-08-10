@@ -1,8 +1,7 @@
 from app import app
-from app.models import Match
-from app.utils import get_user
-from flask import session, request
-from app.authentication import authentication
+from app.models import Match, User
+from flask import request
+from app.authentication import authenticated
 from app.repositories.match import get_matches_for_week
 from app.repositories.results import is_ot
 from app.repositories.team_repository import TeamRepository
@@ -13,14 +12,22 @@ from app.repositories.predictions import (
     choice_to_string,
 )
 from app.utils import render
+from flask import redirect
 
 teams = TeamRepository()
 
+def get_current_week():
+    return 1
+
+@app.route("/week")
+@authenticated()
+def default_week(user: User):
+    current_week = get_current_week()
+    return redirect(f"week/{current_week}")
 
 @app.route("/week/<week>", methods=["GET", "POST"])
-def week(week: int):
-    user = get_user()
-
+@authenticated()
+def week(user: User, week: int):
     if request.method == "POST" and user:
         process_picks(request.form, user.id)
 

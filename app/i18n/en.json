@@ -7,5 +7,13 @@
     "debug": "Debug",
     "login": "Log In",
     "logout": "Log Out",
-    "switch-fr": "Passer en français"
+    "switch-fr": "Passer en français",
+    "rank": "Rank",
+    "name": "Name",
+    "points": "Points",
+    "score": "Score",
+    "pct" :"Pct.",
+    "percentage": "Percentage",
+    "submit": "Submit",
+    "week": "Week"
 }

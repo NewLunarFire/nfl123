@@ -11,7 +11,6 @@ from typing import List, Dict, Tuple
 
 UserScore = namedtuple("UserScore", "name points score")
 
-
 @app.route("/standings")
 def standings():
     users = get_all_users()

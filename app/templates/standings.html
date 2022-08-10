@@ -11,15 +11,15 @@
 {% block content %}
 <section class="section">
     <form class="container" action="/login" method="POST">
-        <h1 class="subtitle">Standings</h1>
+        <h1 class="subtitle">{{ gettext("standings") }}</h1>
         <table class="table is-fullwidth">
             <thead>
                 <tr>
-                    <td>Rank</td>
-                    <td>Name</td>
-                    <td>Points</td>
-                    <td>Score</td>
-                    <td><abbr title="Percentage">Pct.</abbr></td>
+                    <td>{{ gettext("rank") }}</td>
+                    <td>{{ gettext("name") }}</td>
+                    <td>{{ gettext("points") }}</td>
+                    <td>{{ gettext("score") }}</td>
+                    <td><abbr title="{{ gettext('percentage') }}">{{ gettext("pct") }}</abbr></td>
                 </tr>
             </thead>
             <tbody>

@@ -1,10 +1,11 @@
 from app import app
+from app.authentication import authenticated
 from app.utils import render
-from app.models import Match
+from app.models import Match, User
 from app.repositories.team_repository import TeamRepository
 from app.repositories.results import is_ot, upsert_result
 
-from flask import session, request, redirect
+from flask import request, redirect
 
 teams = TeamRepository()
 
@@ -15,9 +16,8 @@ def results_redirect():
 
 
 @app.route("/admin/result/<week>", methods=["GET", "POST"])
-def match_results(week: int):
-    user = Session(session).get_user()
-
+@authenticated(require_admin=True)
+def match_results(user: User, week: int):
     if request.method == "POST" and user:
         process_results(request.form)
 

@@ -3,13 +3,13 @@
 {% block content %}
 <section class="section">
     <form class="container" action="/login" method="POST">
-        <h1 class="subtitle">Connexion</h1>
+        <h1 class="subtitle">{{ gettext("login") }}</h1>
         <select name="user" id="user">
             {% for user in users %}
                 <option value="{{ user.id }}">{{ user.name }}</option>
             {% endfor %}
         </select>
-        <input type="submit" value="Envoyer" />
+        <input type="submit" value="{{ gettext('submit') }}" />
     </form>
 </section>
 {% endblock %}
