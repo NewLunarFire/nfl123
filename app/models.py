@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.types import DateTime
 from .database import Base
@@ -9,6 +9,8 @@ class User(Base):
 
     id = Column("id", Integer, primary_key=True)
     name = Column("name", String, nullable=False)
+    is_admin = Column("is_admin", Boolean, nullable=False)
+    lang = Column("lang", String, nullable=False)
 
 
 class Match(Base):

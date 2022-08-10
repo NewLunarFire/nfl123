@@ -11,10 +11,11 @@ from typing import List, Dict, Tuple
 
 UserScore = namedtuple("UserScore", "name points score")
 
+
 @app.route("/standings")
 def standings():
     users = get_all_users()
-    matches = {match.id : match for match in get_all_matches() if match.result}
+    matches = {match.id: match for match in get_all_matches() if match.result}
     total_matches = len(matches)
 
     user_scores = [calculate_points_for_user(matches, user) for user in users]
@@ -22,19 +23,28 @@ def standings():
     user_scores.sort(key=attrgetter("points", "score"), reverse=True)
     return render("standings.html", users=user_scores, total_matches=total_matches)
 
+
 def calculate_points_for_user(matches: List[Match], user: User) -> UserScore:
     total_score = 0
     total_points = 0
-    predictions = {prediction.match_id : prediction for prediction in get_predictions(user_id=user.id, match_ids=matches.keys())}
+    predictions = {
+        prediction.match_id: prediction
+        for prediction in get_predictions(user_id=user.id, match_ids=matches.keys())
+    }
 
     for (id, match) in matches.items():
-        (win, points) = calculate_points_for_match(match=match, prediction=predictions.get(id))
+        (win, points) = calculate_points_for_match(
+            match=match, prediction=predictions.get(id)
+        )
         total_score += win
         total_points += points
 
     return UserScore(name=user.name, points=total_points, score=total_score)
-    
-def calculate_points_for_match(match: Match, prediction: Prediction) -> Tuple[bool, int]:
+
+
+def calculate_points_for_match(
+    match: Match, prediction: Prediction
+) -> Tuple[bool, int]:
     points: int
     win: bool
 
@@ -51,4 +61,3 @@ def calculate_points_for_match(match: Match, prediction: Prediction) -> Tuple[bo
         win = False
 
     return (win, points)
-            

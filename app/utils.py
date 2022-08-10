@@ -3,6 +3,7 @@ from app.dataclasses.user import User
 
 from app.i18n import tr
 
+
 def render(template: str, **context) -> str:
     sess = get_session()
     ctx = {**context, **sess, "gettext": gettext(sess["lang"])}
@@ -12,11 +13,8 @@ def render(template: str, **context) -> str:
 def get_session():
     user = get_user()
     lang = session.get("lang", "en")
-    return {
-        "user": user,
-        "logged_in": bool(user),
-        "lang": lang
-    }
+    return {"user": user, "logged_in": bool(user), "lang": lang}
+
 
 def get_user():
     user_name = session.get("user_name")
@@ -24,8 +22,9 @@ def get_user():
 
     return User(user_id, user_name) if user_name and user_id else None
 
+
 def gettext(lang: str):
     return lambda key: tr(lang, key)
-    #if lang == "en":
+    # if lang == "en":
 
-    #return "Patate"
+    # return "Patate"

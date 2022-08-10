@@ -1,5 +1,6 @@
 from functools import wraps
-#from flask import request
+
+# from flask import request
 
 # decorator for verifying the JWT
 def authentication(f):
@@ -13,7 +14,7 @@ def authentication(f):
         # # return 401 if token is not passed
         # if not token:
         #     return jsonify({'message' : 'Token is missing !!'}), 401
-  
+
         # try:
         #     # decoding the payload to fetch the stored details
         #     data = jwt.decode(token, app.config['SECRET_KEY'])
@@ -25,6 +26,6 @@ def authentication(f):
         #         'message' : 'Token is invalid !!'
         #     }), 401
         # # returns the current logged in users contex to the routes
-        return  f(*args, **kwargs)
-  
+        return f(*args, **kwargs)
+
     return decorated

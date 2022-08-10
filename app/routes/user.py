@@ -23,3 +23,5 @@ def do_login(id: int):
 
     session["user_name"] = user.name
     session["user_id"] = user.id
+    session["is_admin"] = user.is_admin
+    session["lang"] = user.lang
