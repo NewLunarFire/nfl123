@@ -3,7 +3,6 @@ from app.utils import render
 from app.models import Match
 from app.repositories.team_repository import TeamRepository
 from app.repositories.results import is_ot, upsert_result
-from app.session import Session
 
 from flask import session, request, redirect
 

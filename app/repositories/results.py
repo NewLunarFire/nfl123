@@ -1,4 +1,3 @@
-import re
 from app import app
 from typing import List
 from app.models import MatchResult
@@ -14,15 +13,6 @@ def get_results_for_matches(match_ids: List[int]):
     return (
         app.session.query(MatchResult).filter(MatchResult.match_id.in_(match_ids)).all()
     )
-
-
-# def get_predictions(match_ids: List[int], user_id: int) -> List[Prediction]:
-#     return (
-#         app.session.query(Prediction)
-#         .filter(Prediction.match_id.in_(match_ids))
-#         .filter_by(user_id=user_id)
-#         .all()
-#     )
 
 
 def upsert_result(match_id: int, home_score: int, away_score: int, is_ot: bool) -> None:

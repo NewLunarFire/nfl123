@@ -11,29 +11,35 @@
     <nav class="navbar">
         <div class="navbar-brand"><a class="navbar-item" href="/">Pool NFL - {{ user.name }}</a></div>
         <div id="navbarBasicExample" class="navbar-menu">
-          <a href="/index" class="navbar-item">Home</a>
-          <a href="/week/1" class="navbar-item">Week</a>
+          <a href="/index" class="navbar-item">{{ gettext("home") }}</a>
+          <a href="/week/1" class="navbar-item">{{ gettext("matches") }}</a>
+          <a href="/standings" class="navbar-item">{{ gettext("standings") }}</a>
           <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link">Admin</a>
+            <a class="navbar-link">{{ gettext("admin") }}</a>
             <div class="navbar-dropdown">
-              <a href="/admin/result" class="navbar-item">Results</a>
+              <a href="/admin/result" class="navbar-item">{{ gettext("results") }}</a>
             </div>
           </div>
           <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link">Debug</a>
+            <a class="navbar-link">{{ gettext("debug") }}</a>
             <div class="navbar-dropdown">
-              <a href="/debug/matches" class="navbar-item">Matches</a>
+              <a href="/debug/matches" class="navbar-item">{{ gettext("matches") }}</a>
             </div>
           </div>
         </div>
       </div>
         <div class="navbar-end">
+          {% if lang == "fr" %}
+          <a href="/lang/en" class="navbar-item" title="{{ gettext('switch-en') }}">EN</a>
+          {% else %}
+          <a href="/lang/fr" class="navbar-item" title="{{ gettext('switch-fr') }}">FR</a>
+          {% endif %}
           <div class="navbar-item">
             <div class="buttons">
               {% if logged_in %}
-              <a href="/logout" class="button is-secondary"><strong>Log out</strong></a>
+              <a href="/logout" class="button is-secondary"><strong>{{ gettext("logout") }}</strong></a>
               {% else %}
-              <a href="/login" class="button is-primary"><strong>Log in</strong></a>
+              <a href="/login" class="button is-primary"><strong>{{ gettext("login") }}</strong></a>
               {% endif %}
             </div>
           </div>

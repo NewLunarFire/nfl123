@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block preamble %}
+<style type="text/css">
+    thead {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <form class="container" action="/login" method="POST">
+        <h1 class="subtitle">Standings</h1>
+        <table class="table is-fullwidth">
+            <thead>
+                <tr>
+                    <td>Rank</td>
+                    <td>Name</td>
+                    <td>Points</td>
+                    <td>Score</td>
+                    <td><abbr title="Percentage">Pct.</abbr></td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                {% set percentage = (user.score / total_matches) * 100 %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.points }}</td>
+                    <td>{{ user.score }} / {{ total_matches }}</td>
+                    <td>{{ "%d"|format(percentage) }} %</td>
+                {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</section>
+{% endblock %}

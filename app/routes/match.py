@@ -1,7 +1,10 @@
 from app import app
-from app.models import Match, Prediction
+from app.models import Match
+from app.utils import get_user
 from flask import session, request
-from app.repositories.results import is_ot, upsert_result
+from app.authentication import authentication
+from app.repositories.match import get_matches_for_week
+from app.repositories.results import is_ot
 from app.repositories.team_repository import TeamRepository
 
 from app.repositories.predictions import (
@@ -9,13 +12,13 @@ from app.repositories.predictions import (
     upsert_prediction,
     choice_to_string,
 )
-from app.session import Session
 from app.utils import render
 
 teams = TeamRepository()
 
 
 @app.route("/debug/matches")
+@authentication
 def matches():
     matches = [
         {
@@ -32,12 +35,12 @@ def matches():
 
 @app.route("/week/<week>", methods=["GET", "POST"])
 def week(week: int):
-    user = Session(session).get_user()
+    user = get_user()
 
     if request.method == "POST" and user:
         process_picks(request.form, user.id)
 
-    matches = app.session.query(Match).filter_by(week=week).all()
+    matches = get_matches_for_week(week=week)
 
     predictions = (
         {
@@ -64,14 +67,14 @@ def week(week: int):
         score=score,
         total_matches=total_matches,
         points_color=points_color,
-        score_color=score_color
+        score_color=score_color,
     )
 
 
 def to_dict(match: Match, pick: str) -> dict:
     result = {}
     prediction = {}
-    
+
     if match.result:
         result = {
             "home_score": match.result.home_score,
@@ -86,8 +89,11 @@ def to_dict(match: Match, pick: str) -> dict:
             else:
                 score = match.result.away_score - match.result.home_score
                 win = match.result.away_score >= match.result.home_score
+        else:
+            score = -abs(match.result.home_score - match.result.away_score)
+            win = False
 
-            prediction = {"user_score": score, "user_win": win}
+        prediction = {"user_score": score, "user_win": win}
 
     return {
         **result,
@@ -96,7 +102,7 @@ def to_dict(match: Match, pick: str) -> dict:
         "away_team": teams.get_team_name(match.away_team),
         "start_time": match.start_time,
         "id": match.id,
-        "final": bool(match.result)
+        "final": bool(match.result),
     }
 
 
@@ -108,17 +114,19 @@ def process_picks(picks: dict, user_id: int) -> None:
 
     app.session.commit()
 
+
 def points_color(points: int) -> str:
-    return 'green' if points >= 0 else 'red'
+    return "green" if points >= 0 else "red"
+
 
 def score_color(score: int, total: int) -> str:
     if total == 0:
-        return 'unset'
+        return "unset"
 
     pct = score / total
     if pct > 0.6:
-        return 'green'
+        return "green"
     elif pct > 0.4:
-        return 'orange'
+        return "orange"
     else:
-        return 'red'
+        return "red"

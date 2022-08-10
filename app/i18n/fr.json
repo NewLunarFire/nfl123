@@ -1,0 +1,11 @@
+{
+    "home": "Accueil",
+    "matches": "Matchs",
+    "standings": "Classement",
+    "admin": "Admin",
+    "results": "Résultats",
+    "debug": "Debug",
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "switch-en": "Switch to English"
+}
