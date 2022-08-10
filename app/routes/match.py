@@ -17,22 +17,6 @@ from app.utils import render
 teams = TeamRepository()
 
 
-@app.route("/debug/matches")
-@authentication
-def matches():
-    matches = [
-        {
-            "week": match.week,
-            "home_team": teams.get_team_name(match.home_team),
-            "away_team": teams.get_team_name(match.away_team),
-            "start_time": match.start_time,
-        }
-        for match in app.session.query(Match).all()
-    ]
-
-    return render("/debug/matches.html", matches=matches)
-
-
 @app.route("/week/<week>", methods=["GET", "POST"])
 def week(week: int):
     user = get_user()
