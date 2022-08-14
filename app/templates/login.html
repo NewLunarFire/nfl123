@@ -1,15 +1,42 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="section">
-    <form class="container" action="/login" method="POST">
-        <h1 class="subtitle">{{ gettext("login") }}</h1>
-        <select name="user" id="user">
-            {% for user in users %}
-                <option value="{{ user.id }}">{{ user.name }}</option>
-            {% endfor %}
-        </select>
-        <input type="submit" value="{{ gettext('submit') }}" />
-    </form>
-</section>
+<section class="hero is-fullheight">
+    <div class="hero-body">
+      <div class="container">
+        <div class="columns is-centered">
+          <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+            <form action="login" method="POST" class="box">
+              <div class="field">
+                <label for="" class="label">{{ gettext("username") }}</label>
+                <div class="control has-icons-left">
+                  <input type="text" class="input" name="user" required>
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-user"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="" class="label">{{ gettext("password") }}</label>
+                <div class="control has-icons-left">
+                  <input type="password" class="input" name="password" required>
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-lock"></i>
+                  </span>
+                </div>
+              </div>
+              {% if verification_failed %}
+              <div class="notification is-danger">
+                Verification failed
+              </div>
+              {% endif %}
+              <div class="field">
+                <button class="button is-success">{{ gettext("login") }}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 {% endblock %}

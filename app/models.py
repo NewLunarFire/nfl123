@@ -11,6 +11,7 @@ class User(Base):
     name = Column("name", String, nullable=False)
     is_admin = Column("is_admin", Boolean, nullable=False)
     lang = Column("lang", String, nullable=False)
+    password = Column("password", String, nullable=False)
 
 
 class Match(Base):

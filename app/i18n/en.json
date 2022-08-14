@@ -15,5 +15,7 @@
     "pct" :"Pct.",
     "percentage": "Percentage",
     "submit": "Submit",
-    "week": "Week"
+    "week": "Week",
+    "username": "User Name",
+    "password": "Password"
 }
