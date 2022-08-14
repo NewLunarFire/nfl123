@@ -50,6 +50,6 @@ def is_game_started(request_time: datetime, match: Match) -> bool:
     buffer = timedelta(minutes=15)
 
     # For testing purposes
-    request_time = datetime.fromisoformat('2021-09-12T16:35:00')
+    #request_time = datetime.fromisoformat('2021-09-12T16:35:00')
 
     return (request_time - match.start_time)  > buffer
