@@ -105,18 +105,6 @@ def upgrade():
         ),
         sa.Column("pick", sa.Integer, nullable=False),
     )
-
-    matches = [
-        {
-            "week": 1,
-            "home_team": x,
-            "away_team": 33 - x,
-            "start_time": datetime.utcnow(),
-        }
-        for x in range(1, 17)
-    ]
-    op.bulk_insert(matches_table, matches)
-
     pass
 
 
