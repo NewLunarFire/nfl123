@@ -24,7 +24,7 @@
             </thead>
             <tbody>
                 {% for user in users %}
-                {% set percentage = (user.score / total_matches) * 100 %}
+                {% set percentage = (user.score / total_matches) * 100 if total_matches > 0 else 0 %}
                 <tr>
                     <td>{{ loop.index }}</td>
                     <td>{{ user.name }}</td>
