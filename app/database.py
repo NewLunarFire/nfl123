@@ -6,8 +6,12 @@ from os import environ
 
 from sqlalchemy.sql.schema import ForeignKey
 
+database: str =environ["DATABASE_URL"]
+if database.startswith("postgres://"):
+    database = database.replace("postgres://", "postgresql://")
+
 engine = create_engine(
-    environ["DATABASE_URL"], connect_args={"check_same_thread": False}
+    database, connect_args={"check_same_thread": False}
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
