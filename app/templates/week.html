@@ -59,7 +59,7 @@
         <div class="block">
             <div class="columns is-vcentered">
                 <div class="column">
-                    <input type="radio" id="match_{{ match.id }}_away" name="match_{{ match.id }}" value="away" {% if predictions[match.id] == "away" %}checked="checked"{% endif %} {% if match.final %}disabled="disabled"{% endif %}>
+                    <input type="radio" id="match_{{ match.id }}_away" name="match_{{ match.id }}" value="away" {% if predictions[match.id] == "away" %}checked="checked"{% endif %} {% if match.locked %}disabled="disabled"{% endif %}>
                     <label class="box column {{ label_class }}" style="text-align: right;" for="match_{{ match.id }}_away" >{{ match.away_team }}</label>
                 </div>
                 <div class="column is-narrow-tablet" style="text-align: center;">
@@ -71,7 +71,7 @@
                     {% endif %}
                 </div>
                 <div class="column">
-                    <input type="radio" id="match_{{ match.id }}_home" name="match_{{ match.id }}" value="home" {% if predictions[match.id] == "home" %}checked="checked"{% endif %} {% if match.final %}disabled="disabled"{% endif %}>
+                    <input type="radio" id="match_{{ match.id }}_home" name="match_{{ match.id }}" value="home" {% if predictions[match.id] == "home" %}checked="checked"{% endif %} {% if match.locked %}disabled="disabled"{% endif %}>
                     <label class="box column {{ label_class }}" style="text-align: left;" for="match_{{ match.id }}_home">{{ match.home_team }}</label>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-from flask import render_template, session
+from flask import render_template, session, g
 from app.repositories.user import get_user
 
 from app.i18n import tr
@@ -18,3 +18,6 @@ def get_session():
 
 def gettext(lang: str):
     return lambda key: tr(lang, key)
+
+def get_request_time():
+    return g.request_time

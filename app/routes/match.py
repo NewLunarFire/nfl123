@@ -1,5 +1,6 @@
 from app import app
 from app.models import Match, User
+from datetime import datetime
 from flask import request
 from app.authentication import authenticated
 from app.repositories.match import get_matches_for_week
@@ -10,8 +11,9 @@ from app.repositories.predictions import (
     get_predictions,
     upsert_prediction,
     choice_to_string,
+    is_game_started
 )
-from app.utils import render
+from app.utils import get_request_time, render
 from flask import redirect
 
 teams = TeamRepository()
@@ -28,8 +30,9 @@ def default_week(user: User):
 @app.route("/week/<week>", methods=["GET", "POST"])
 @authenticated()
 def week(user: User, week: int):
+    request_time = get_request_time()
     if request.method == "POST" and user:
-        process_picks(request.form, user.id)
+        process_picks(request.form, user.id, request_time)
 
     matches = get_matches_for_week(week=week)
 
@@ -44,7 +47,7 @@ def week(user: User, week: int):
         else {}
     )
 
-    matches = [to_dict(match, predictions.get(match.id)) for match in matches]
+    matches = [to_dict(match, predictions.get(match.id), request_time) for match in matches]
     points = sum([match.get("user_score", 0) for match in matches])
     score = sum([match.get("user_win", False) for match in matches])
     total_matches = sum([match["final"] for match in matches])
@@ -62,7 +65,7 @@ def week(user: User, week: int):
     )
 
 
-def to_dict(match: Match, pick: str) -> dict:
+def to_dict(match: Match, pick: str, request_time: datetime) -> dict:
     result = {}
     prediction = {}
 
@@ -94,14 +97,15 @@ def to_dict(match: Match, pick: str) -> dict:
         "start_time": match.start_time,
         "id": match.id,
         "final": bool(match.result),
+        "locked": is_game_started(request_time=request_time, match=match)
     }
 
 
-def process_picks(picks: dict, user_id: int) -> None:
+def process_picks(picks: dict, user_id: int, request_time: datetime) -> None:
     for key, value in picks.items():
         if key.startswith("match_"):
             match_id = int(key[6:])
-            upsert_prediction(match_id=match_id, user_id=user_id, choice=value)
+            upsert_prediction(match_id=match_id, user_id=user_id, choice=value, request_time=request_time)
 
     app.session.commit()
 
