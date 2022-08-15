@@ -7,14 +7,18 @@ Create Date: 2022-08-14 19:54:03.581550
 """
 from alembic import op
 import sqlalchemy as sa
-from app.models import WeekType
-
+import enum
 
 # revision identifiers, used by Alembic.
 revision = "7cce80338914"
 down_revision = "ba5af60b7de3"
 branch_labels = None
 depends_on = None
+
+class WeekType(enum.Enum):
+    preseason = 1
+    season = 2
+    playoffs = 3
 
 
 def upgrade():

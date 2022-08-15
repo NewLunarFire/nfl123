@@ -5,8 +5,9 @@ from app.utils import render
 from app.repositories.user import get_all_users
 from app.repositories.match import get_matches_for_weeks
 from app.repositories.predictions import get_predictions, choice_to_string
-from app.repositories.week import get_weeks_in_year_by_type
+from app.repositories.week import get_weeks_in_year_by_type, get_current_week
 
+from datetime import datetime
 from flask import redirect, url_for
 from operator import attrgetter
 from typing import List, Tuple
@@ -15,7 +16,8 @@ UserScore = namedtuple("UserScore", "name points score")
 
 @app.route("/standings")
 def default_standings():
-    return redirect(url_for("standings", type="season"))
+    week = get_current_week(datetime.now())
+    return redirect(url_for("standings", type=week.type.name))
 
 @app.route("/standings/<type>")
 def standings(type: str):

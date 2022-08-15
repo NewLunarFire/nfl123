@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.types import DateTime
 from .database import Base
 
-import enum
+from app.enums.week_type import WeekType
 
 
 class User(Base):
@@ -63,13 +63,6 @@ class Prediction(Base):
             + " pick="
             + str(self.pick)
         )
-
-
-class WeekType(enum.Enum):
-    preseason = 1
-    season = 2
-    playoffs = 3
-
 
 class Week(Base):
     __tablename__ = "weeks"
