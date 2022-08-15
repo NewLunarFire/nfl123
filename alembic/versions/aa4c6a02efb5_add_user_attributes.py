@@ -17,7 +17,9 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column("users", sa.Column("is_admin", sa.Boolean, nullable=False, default=False))
+    op.add_column(
+        "users", sa.Column("is_admin", sa.Boolean, nullable=False, default=False)
+    )
     op.add_column("users", sa.Column("lang", sa.String, nullable=False, default="en"))
     pass
 

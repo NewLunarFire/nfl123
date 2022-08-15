@@ -17,5 +17,18 @@
     "submit": "Submit",
     "week": "Week",
     "username": "User Name",
-    "password": "Password"
+    "password": "Password",
+
+    "week/PRE1": "Preseason 1",
+    "week/PRE2": "Preseason 2",
+    "week/PRE3": "Preseason 3",
+    "week/WC": "Wild Card",
+    "week/DF": "Divisional Playoffs",
+    "week/CF": "Conference Championship",
+    "week/SB": "Super Bowl",
+
+    "preseason": "Preseason",
+    "season": "Regular Season",
+    "regular_season": "Regular Season",
+    "playoffs": "Playoffs"
 }

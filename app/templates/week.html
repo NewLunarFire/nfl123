@@ -37,22 +37,22 @@
 
 {% block content %}
 <section class="section">
-<h1 class="title">Matchs - {{ gettext("week") }} {{ week }}</h1>
-<nav class="level">
-    <div class="level-item has-text-centered">
-        <div>
-        <p class="heading">{{ gettext("points") }}</p>
-        <p class="title" style="color: {{ points_color(points) }}">{{ "%+d"|format(points) }}</p>
+    <h1 class="title">Matchs - {{ gettext('week') + " " + week.display_name if week.display_name.isdigit() else gettext("week/" + week.display_name) }}</h1>
+    <nav class="level">
+        <div class="level-item has-text-centered">
+            <div>
+            <p class="heading">{{ gettext("points") }}</p>
+            <p class="title" style="color: {{ points_color(points) }}">{{ "%+d"|format(points) }}</p>
+            </div>
         </div>
-    </div>
-    <div class="level-item has-text-centered">
-        <div>
-        <p class="heading">{{ gettext("score") }}</p>
-        <p class="title" style="color: {{ score_color(score, total_matches) }}">{{ score }}/{{ total_matches }}</p>
+        <div class="level-item has-text-centered">
+            <div>
+            <p class="heading">{{ gettext("score") }}</p>
+            <p class="title" style="color: {{ score_color(score, total_matches) }}">{{ score }}/{{ total_matches }}</p>
+            </div>
         </div>
-    </div>
     </nav>
-    <form class="container" action="/week/{{ week }}" method="POST">
+    <form class="container" action="/week/{{ week.display_name }}" method="POST">
         {% include 'components/pagination.html' %}
         {% for match in matches %}
         {% set label_class = ('win' if match.user_win else 'loss') if 'user_win' in match else None %}
@@ -80,7 +80,7 @@
             </div>
         </div>
         {% endfor %}
-        <input type="submit" value="{{ gettext('submit') }}" />
+        <input type="submit" class="button is-primary is-fullwidth" value="{{ gettext('submit') }}" />
     </form>
 </section>
 {% endblock %}

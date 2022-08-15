@@ -6,17 +6,15 @@ from os import environ
 
 from sqlalchemy.sql.schema import ForeignKey
 
-database: str =environ["DATABASE_URL"]
+database: str = environ["DATABASE_URL"]
 if database.startswith("postgres://"):
     database = database.replace("postgres://", "postgresql://")
 
-connect_args={}
+connect_args = {}
 if database.startswith("sqlite://"):
-    connect_args={"check_same_thread": False}
+    connect_args = {"check_same_thread": False}
 
-engine = create_engine(
-    database, connect_args=connect_args
-)
+engine = create_engine(database, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

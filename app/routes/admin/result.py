@@ -4,7 +4,9 @@ from app.utils import render
 from app.models import Match, User
 from app.repositories.team_repository import TeamRepository
 from app.repositories.results import is_ot, upsert_result
+from app.repositories.week import get_all_weeks_in_year, get_week, get_current_week
 
+from datetime import datetime
 from flask import request, redirect
 
 teams = TeamRepository()
@@ -12,19 +14,29 @@ teams = TeamRepository()
 
 @app.route("/admin/result")
 def results_redirect():
-    return redirect("/admin/result/1")
+    current_week = get_current_week(datetime.now())
+    return redirect(f"/admin/result/{current_week.display_name}")
 
 
-@app.route("/admin/result/<week>", methods=["GET", "POST"])
+@app.route("/admin/result/<week_name>", methods=["GET", "POST"])
 @authenticated(require_admin=True)
-def match_results(user: User, week: int):
+def match_results(user: User, week_name: str):
+    week = get_week(name=week_name, year=2022)
+
     if request.method == "POST" and user:
         process_results(request.form)
 
     matches = [
-        to_dict(match) for match in app.session.query(Match).filter_by(week=week).all()
+        to_dict(match)
+        for match in app.session.query(Match).filter_by(week=week.id).all()
     ]
-    return render("admin/result.html", week=week, matches=matches)
+
+    return render(
+        "admin/result.html",
+        week=week,
+        weeks=get_all_weeks_in_year(year=2022),
+        matches=matches,
+    )
 
 
 def to_dict(match: Match) -> dict:

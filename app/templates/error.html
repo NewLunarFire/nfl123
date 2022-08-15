@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block preamble %}
+<style type="text/css">
+    thead {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <form class="container" action="/login" method="POST">
+        <h1 class="subtitle">{{ title }}</h1>
+    </form>
+</section>
+{% endblock %}

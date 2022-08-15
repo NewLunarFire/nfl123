@@ -14,3 +14,7 @@ dictionnaries = {lang: __load_lang(lang) for lang in ["en", "fr"]}
 def tr(lang: str, key: str):
     dic = dictionnaries[lang]
     return dic[key] if key in dic else f"??{key}??"
+
+
+def gettext(lang: str):
+    return lambda key: tr(lang, key)

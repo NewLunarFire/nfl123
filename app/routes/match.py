@@ -1,40 +1,45 @@
 from app import app
 from app.models import Match, User
 from datetime import datetime
-from flask import request
+from flask import request, abort
 from app.authentication import authenticated
 from app.repositories.match import get_matches_for_week
 from app.repositories.results import is_ot
 from app.repositories.team_repository import TeamRepository
+from app.repositories.week import get_all_weeks_in_year, get_week, get_current_week
 
 from app.repositories.predictions import (
     get_predictions,
     upsert_prediction,
     choice_to_string,
-    is_game_started
+    is_game_started,
 )
 from app.utils import get_request_time, render
 from flask import redirect
 
 teams = TeamRepository()
 
-def get_current_week():
-    return 1
 
 @app.route("/week")
 @authenticated()
 def default_week(user: User):
-    current_week = get_current_week()
-    return redirect(f"week/{current_week}")
+    current_week = get_current_week(datetime.now())
+    return redirect(f"week/{current_week.display_name}")
 
-@app.route("/week/<week>", methods=["GET", "POST"])
+
+@app.route("/week/<week_name>", methods=["GET", "POST"])
 @authenticated()
-def week(user: User, week: int):
+def week(user: User, week_name: str):
     request_time = get_request_time()
+    week = get_week(name=week_name, year=2022)
+
+    if not week:
+        abort(404)
+
     if request.method == "POST" and user:
         process_picks(request.form, user.id, request_time)
 
-    matches = get_matches_for_week(week=week)
+    matches = get_matches_for_week(week=week.id)
 
     predictions = (
         {
@@ -47,13 +52,16 @@ def week(user: User, week: int):
         else {}
     )
 
-    matches = [to_dict(match, predictions.get(match.id), request_time) for match in matches]
+    matches = [
+        to_dict(match, predictions.get(match.id), request_time) for match in matches
+    ]
     points = sum([match.get("user_score", 0) for match in matches])
     score = sum([match.get("user_win", False) for match in matches])
     total_matches = sum([match["final"] for match in matches])
 
     return render(
         "week.html",
+        weeks=get_all_weeks_in_year(year=2022),
         week=week,
         matches=matches,
         predictions=predictions,
@@ -97,7 +105,7 @@ def to_dict(match: Match, pick: str, request_time: datetime) -> dict:
         "start_time": match.start_time,
         "id": match.id,
         "final": bool(match.result),
-        "locked": is_game_started(request_time=request_time, match=match)
+        "locked": is_game_started(request_time=request_time, match=match),
     }
 
 
@@ -105,7 +113,12 @@ def process_picks(picks: dict, user_id: int, request_time: datetime) -> None:
     for key, value in picks.items():
         if key.startswith("match_"):
             match_id = int(key[6:])
-            upsert_prediction(match_id=match_id, user_id=user_id, choice=value, request_time=request_time)
+            upsert_prediction(
+                match_id=match_id,
+                user_id=user_id,
+                choice=value,
+                request_time=request_time,
+            )
 
     app.session.commit()
 

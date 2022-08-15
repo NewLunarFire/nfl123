@@ -1,3 +1,4 @@
+from . import error
 from . import index
 from . import lang
 from . import match

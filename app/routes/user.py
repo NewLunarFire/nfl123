@@ -6,6 +6,7 @@ from flask import redirect, request, session, url_for
 
 from passlib.hash import pbkdf2_sha256
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     verification_failed = False
@@ -17,7 +18,7 @@ def login():
             return redirect("week")
         else:
             verification_failed = True
-    
+
     return render("login.html", verification_failed=verification_failed)
 
 
@@ -26,12 +27,13 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+
 def do_login(name: str, password: str) -> int:
     user = get_user_by_name(name)
 
     if not user:
         return None
-    
+
     if not pbkdf2_sha256.verify(password, user.password):
         return None
 

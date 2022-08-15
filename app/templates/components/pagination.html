@@ -2,9 +2,9 @@
     <!--<a class="pagination-previous">Previous</a>
     <a class="pagination-next">Next</a>-->
     <ul class="pagination-list">
-     {% for i in range(1, 19) %}
+     {% for week in weeks %}
       <li>
-        <a href="{{ i }}" class="pagination-link" aria-label="Week {{ i }}">{{ i }}</a>
+        <a href="{{ week.display_name }}" class="pagination-link" aria-label="Week {{ i }}">{{ week.display_name }}</a>
       </li>
       {% endfor %}
     </ul>

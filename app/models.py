@@ -1,7 +1,9 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.types import DateTime
 from .database import Base
+
+import enum
 
 
 class User(Base):
@@ -61,3 +63,19 @@ class Prediction(Base):
             + " pick="
             + str(self.pick)
         )
+
+
+class WeekType(enum.Enum):
+    preseason = 1
+    season = 2
+    playoffs = 3
+
+
+class Week(Base):
+    __tablename__ = "weeks"
+
+    id = Column("id", Integer, primary_key=True)
+    display_name = Column("display_name", String, nullable=False)
+    year = Column("year", Integer, nullable=False)
+    type = Column("type", Enum(WeekType), nullable=False)
+    start_time = Column("start_time", DateTime, nullable=False)

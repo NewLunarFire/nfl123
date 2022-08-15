@@ -17,5 +17,18 @@
     "submit": "Soumettre",
     "week": "Semaine",
     "username": "Nom d'utilisateur",
-    "password": "Mot de passe"
+    "password": "Mot de passe",
+    
+    "week/PRE1": "Pré-Saison 1",
+    "week/PRE2": "Pré-Saison 2",
+    "week/PRE3": "Pré-Saison 3",
+    "week/WC": "Wild Card",
+    "week/DF": "Séries de Division",
+    "week/CF": "Finale de conférence",
+    "week/SB": "Super Bowl",
+
+    "preseason": "Pré-saison",
+    "season": "Saison régulière",
+    "regular_season": "Saison régulière",
+    "playoffs": "Séries éliminatoires"
 }

@@ -1,7 +1,7 @@
 from flask import render_template, session, g
 from app.repositories.user import get_user
 
-from app.i18n import tr
+from app.i18n import gettext
 
 
 def render(template: str, **context) -> str:
@@ -16,8 +16,6 @@ def get_session():
     lang = user.lang if user else "en"
     return {"user": user, "lang": lang}
 
-def gettext(lang: str):
-    return lambda key: tr(lang, key)
 
 def get_request_time():
     return g.request_time

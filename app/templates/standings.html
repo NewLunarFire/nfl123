@@ -10,8 +10,9 @@
 
 {% block content %}
 <section class="section">
-    <form class="container" action="/login" method="POST">
+    <div class="container">
         <h1 class="subtitle">{{ gettext("standings") }}</h1>
+        {% include 'components/chooser.html' %}
         <table class="table is-fullwidth">
             <thead>
                 <tr>
@@ -35,6 +36,6 @@
                 </tr>
             </tbody>
         </table>
-    </form>
+    </div>
 </section>
 {% endblock %}

@@ -3,6 +3,7 @@ from functools import wraps
 
 from flask import session, redirect, url_for
 
+
 def authenticated(require_admin=False):
     def wrapper(f):
         @wraps(f)
@@ -12,13 +13,13 @@ def authenticated(require_admin=False):
 
             if not user:
                 return redirect(url_for("login"))
-            
+
             if require_admin:
                 if user and not user.is_admin:
                     return redirect("/week")
-            
+
             return f(user, *args, **kwargs)
 
-        return decorated   
+        return decorated
+
     return wrapper
- 

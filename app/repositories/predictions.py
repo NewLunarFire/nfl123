@@ -45,11 +45,12 @@ def upsert_prediction(
 def choice_to_string(choice: int) -> str:
     return values[choice]
 
+
 def is_game_started(request_time: datetime, match: Match) -> bool:
     # 15 minutes from match_start
     buffer = timedelta(minutes=15)
 
     # For testing purposes
-    #request_time = datetime.fromisoformat('2021-09-12T16:35:00')
+    # request_time = datetime.fromisoformat('2021-09-12T16:35:00')
 
-    return (request_time - match.start_time)  > buffer
+    return (request_time - match.start_time) > buffer

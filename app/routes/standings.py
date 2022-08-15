@@ -1,26 +1,35 @@
 from collections import namedtuple
 from app import app
-from app.models import Match, Prediction, User
+from app.models import Match, Prediction, User, WeekType
 from app.utils import render
 from app.repositories.user import get_all_users
-from app.repositories.match import get_all_matches
+from app.repositories.match import get_matches_for_weeks
 from app.repositories.predictions import get_predictions, choice_to_string
+from app.repositories.week import get_weeks_in_year_by_type
 
+from flask import redirect, url_for
 from operator import attrgetter
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 
 UserScore = namedtuple("UserScore", "name points score")
 
 @app.route("/standings")
-def standings():
+def default_standings():
+    return redirect(url_for("standings", type="season"))
+
+@app.route("/standings/<type>")
+def standings(type: str):
     users = get_all_users()
-    matches = {match.id: match for match in get_all_matches() if match.result}
+    week_type = WeekType[type]
+    weeks = get_weeks_in_year_by_type(type=week_type, year=2022)
+
+    matches = {match.id: match for match in get_matches_for_weeks(weeks=[week.id for week in weeks]) if match.result}
     total_matches = len(matches)
 
     user_scores = [calculate_points_for_user(matches, user) for user in users]
 
     user_scores.sort(key=attrgetter("points", "score"), reverse=True)
-    return render("standings.html", users=user_scores, total_matches=total_matches)
+    return render("standings.html", users=user_scores, total_matches=total_matches, week_type=type)
 
 
 def calculate_points_for_user(matches: List[Match], user: User) -> UserScore:
