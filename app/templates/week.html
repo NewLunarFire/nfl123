@@ -32,6 +32,14 @@
     div.loss, span.loss {
         color: red
     }
+
+    img.logo {
+        vertical-align: middle;
+        padding-left: 2px;
+        padding-right: 2px;
+        margin-top: -4px;
+        margin-bottom: -4px;
+    }
 </style>
 {% endblock %}
 
@@ -55,12 +63,15 @@
     <form class="container" action="/week/{{ week.display_name }}" method="POST">
         {% include 'components/pagination.html' %}
         {% for match in matches %}
-        {% set label_class = ('win' if match.user_win else 'loss') if 'user_win' in match else None %}
+        {% set label_class = ('win' if match.user_win else 'loss') if 'user_win' in match else '' %}
         <div class="block">
             <div class="columns is-vcentered">
                 <div class="column">
                     <input type="radio" id="match_{{ match.id }}_away" name="match_{{ match.id }}" value="away" {% if predictions[match.id] == "away" %}checked="checked"{% endif %} {% if match.locked %}disabled="disabled"{% endif %}>
-                    <label class="box column {{ label_class }}" style="text-align: right;" for="match_{{ match.id }}_away" >{{ match.away_team }}</label>
+                    <label class="box column {{ label_class }}" style="text-align: right;" for="match_{{ match.id }}_away" >
+                        {{ match.away_team }}
+                        <img class="logo" src="{{ url_for('static', filename=match.away_logo) }}" />
+                    </label>
                 </div>
                 <div class="column is-narrow-tablet" style="text-align: center;">
                     {% if match.final %}
@@ -72,7 +83,10 @@
                 </div>
                 <div class="column">
                     <input type="radio" id="match_{{ match.id }}_home" name="match_{{ match.id }}" value="home" {% if predictions[match.id] == "home" %}checked="checked"{% endif %} {% if match.locked %}disabled="disabled"{% endif %}>
-                    <label class="box column {{ label_class }}" style="text-align: left;" for="match_{{ match.id }}_home">{{ match.home_team }}</label>
+                    <label class="box column {{ label_class }}" style="text-align: left;" for="match_{{ match.id }}_home">
+                        <img class="logo" src="{{ url_for('static', filename=match.home_logo) }}" />
+                        {{ match.home_team }}
+                    </label>
                 </div>
             </div>
             <div class="columns is-mobile">

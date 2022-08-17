@@ -7,4 +7,4 @@ from werkzeug.exceptions import HTTPException
 
 @app.errorhandler(HTTPException)
 def page_not_found(error):
-    return render("error.html", error=error.code), error.code
+    return render("error.html", error_code=error.code), error.code
