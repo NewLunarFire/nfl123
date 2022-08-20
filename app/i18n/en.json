@@ -30,5 +30,7 @@
     "preseason": "Preseason",
     "season": "Regular Season",
     "regular_season": "Regular Season",
-    "playoffs": "Playoffs"
+    "playoffs": "Playoffs",
+
+    "tooltip_locked": "You can no longer change your pick for this match"
 }

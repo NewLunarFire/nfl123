@@ -30,5 +30,7 @@
     "preseason": "Pré-saison",
     "season": "Saison régulière",
     "regular_season": "Saison régulière",
-    "playoffs": "Séries éliminatoires"
+    "playoffs": "Séries éliminatoires",
+
+    "tooltip_locked": "Vous ne pouvez plus changer votre choix pour ce match"
 }

@@ -95,7 +95,12 @@ def to_dict(match: Match, pick: str, request_time: datetime) -> dict:
             score = -abs(match.result.home_score - match.result.away_score)
             win = False
 
-        prediction = {"user_score": score, "user_win": win}
+        prediction = {
+            "user_score": score,
+            "user_win": win,
+            "user_selected": not not pick,
+            "user_pick": pick,
+        }
 
     return {
         **result,
