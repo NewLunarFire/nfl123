@@ -64,6 +64,7 @@ class Prediction(Base):
             + str(self.pick)
         )
 
+
 class Week(Base):
     __tablename__ = "weeks"
 

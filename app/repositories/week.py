@@ -8,8 +8,15 @@ from typing import List
 def get_all_weeks_in_year(year: int) -> List[Week]:
     return app.session.query(Week).filter_by(year=year).order_by(Week.start_time).all()
 
+
 def get_weeks_in_year_by_type(year: int, type: WeekType) -> List[Week]:
-    return app.session.query(Week).filter_by(year=year, type=type).order_by(Week.start_time).all()
+    return (
+        app.session.query(Week)
+        .filter_by(year=year, type=type)
+        .order_by(Week.start_time)
+        .all()
+    )
+
 
 def get_week(name: str, year: int) -> Week:
     return app.session.query(Week).filter_by(year=year, display_name=name).first()

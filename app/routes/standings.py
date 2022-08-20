@@ -14,10 +14,12 @@ from typing import List, Tuple
 
 UserScore = namedtuple("UserScore", "name points score")
 
+
 @app.route("/standings")
 def default_standings():
     week = get_current_week(datetime.now())
     return redirect(url_for("standings", type=week.type.name))
+
 
 @app.route("/standings/<type>")
 def standings(type: str):
@@ -25,13 +27,19 @@ def standings(type: str):
     week_type = WeekType[type]
     weeks = get_weeks_in_year_by_type(type=week_type, year=2022)
 
-    matches = {match.id: match for match in get_matches_for_weeks(weeks=[week.id for week in weeks]) if match.result}
+    matches = {
+        match.id: match
+        for match in get_matches_for_weeks(weeks=[week.id for week in weeks])
+        if match.result
+    }
     total_matches = len(matches)
 
     user_scores = [calculate_points_for_user(matches, user) for user in users]
 
     user_scores.sort(key=attrgetter("points", "score"), reverse=True)
-    return render("standings.html", users=user_scores, total_matches=total_matches, week_type=type)
+    return render(
+        "standings.html", users=user_scores, total_matches=total_matches, week_type=type
+    )
 
 
 def calculate_points_for_user(matches: List[Match], user: User) -> UserScore:

@@ -15,6 +15,7 @@ down_revision = "ba5af60b7de3"
 branch_labels = None
 depends_on = None
 
+
 class WeekType(enum.Enum):
     preseason = 1
     season = 2
