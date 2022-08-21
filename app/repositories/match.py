@@ -18,5 +18,6 @@ def get_matches_for_weeks(weeks: List[int]) -> List[Match]:
 def get_all_matches() -> List[Match]:
     return __query_match().all()
 
+
 def __query_match():
     return app.session.query(Match).order_by(Match.start_time).order_by(Match.id)

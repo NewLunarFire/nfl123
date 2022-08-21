@@ -20,6 +20,7 @@ from flask import redirect
 
 teams = TeamRepository()
 
+
 @app.route("/week")
 @authenticated()
 def default_week(user: User):

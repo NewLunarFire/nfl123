@@ -19,6 +19,7 @@ def after_request_callback(response):
     g.pop("request_time")
     return response
 
+
 @app.template_filter()
 def to_eastern_time(dt, granularity="minutes"):
     format = "%Y-%m-%d %H:%M"

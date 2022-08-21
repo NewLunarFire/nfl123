@@ -3,6 +3,7 @@ from app.i18n import gettext
 from app.repositories.user import get_user
 from app.utils.time import get_request_time
 
+
 def render(template: str, **context) -> str:
     sess = get_session()
     ctx = {**context, **sess, "gettext": gettext(sess["lang"])}
