@@ -7,12 +7,38 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     {% block preamble %}{% endblock %}
+    <script type="text/javascript">
+      var menuShown = false;
+      function toggleMenu()
+      {
+        menuShown = !menuShown;
+        var burger = document.getElementById("navbar-burger");
+        var menu = document.getElementById("navbar-menu");
+        if(menuShown)
+        {
+          burger.classList.add("is-active");
+          menu.classList.add("is-active");
+        }
+        else
+        {
+          burger.classList.remove("is-active");
+          menu.classList.remove("is-active");
+        }
+      }
+    </script>
   </head>
   <body>
     <nav class="navbar is-dark">
-      <div class="navbar-brand"><a class="navbar-item" href="/"><i class="fa-solid fa-football"></i>&nbsp;Pool NFL</a></div>  
+      <div class="navbar-brand">
+        <a class="navbar-item" href="/"><i class="fa-solid fa-football"></i>&nbsp;Pool NFL</a>
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" id="navbar-burger" onClick="toggleMenu()">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>  
       {% if user %}
-      <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-menu" id="navbar-menu">
         <div class="navbar-start">
           <a href="/week" class="navbar-item"><i class="fa-solid fa-angle-right"></i>&nbsp;{{ gettext("matches") }}</a>
           <a href="/standings" class="navbar-item"><i class="fa-solid fa-medal"></i>&nbsp;{{ gettext("standings") }}</a>
