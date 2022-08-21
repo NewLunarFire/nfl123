@@ -14,11 +14,11 @@ from app.repositories.predictions import (
     choice_to_string,
     is_game_started,
 )
-from app.utils import get_request_time, render
+from app.utils.rendering import render
+from app.utils.time import get_request_time
 from flask import redirect
 
 teams = TeamRepository()
-
 
 @app.route("/week")
 @authenticated()

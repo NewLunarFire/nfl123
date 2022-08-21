@@ -1,7 +1,7 @@
 from collections import namedtuple
 from app import app
 from app.models import Match, Prediction, User, WeekType
-from app.utils import render
+from app.utils.rendering import render
 from app.repositories.user import get_all_users
 from app.repositories.match import get_matches_for_weeks
 from app.repositories.predictions import get_predictions, choice_to_string

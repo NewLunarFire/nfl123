@@ -1,6 +1,6 @@
 from app import app
 from app.authentication import authenticated
-from app.utils import render
+from app.utils.rendering import render
 from app.models import Match, User
 from app.repositories.team_repository import TeamRepository
 from app.repositories.results import is_ot, upsert_result

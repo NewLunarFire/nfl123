@@ -1,7 +1,5 @@
-from flask import render_template
 from app import app
-from app.i18n import gettext
-from app.utils import render
+from app.utils.rendering import render
 from werkzeug.exceptions import HTTPException
 
 

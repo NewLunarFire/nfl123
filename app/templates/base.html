@@ -70,5 +70,12 @@
       </div>
     </nav>
     {% block content %}{% endblock %}
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          Request served at: <strong>{{ request_time | to_eastern_time(granularity="seconds") }}</strong>
+        </p>
+      </div>
+    </footer>
   </body>
 </html>

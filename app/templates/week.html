@@ -118,7 +118,7 @@
                 </div>
             </div>
             <div class="columns is-mobile">
-                <div class="column is-full" style="text-align: center;">{{ match.start_time }}</div>
+                <div class="column is-full" style="text-align: center;">{{ match.start_time | to_eastern_time }}</div>
             </div>
         </div>
         {% endfor %}

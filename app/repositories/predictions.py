@@ -3,6 +3,7 @@ from app.repositories.match import get_match
 from datetime import datetime, timedelta
 from typing import Literal, List
 from app.models import Match, Prediction
+from pytz import utc
 
 values = ["home", "away"]
 
@@ -53,4 +54,4 @@ def is_game_started(request_time: datetime, match: Match) -> bool:
     # For testing purposes
     # request_time = datetime.fromisoformat('2021-09-12T16:35:00')
 
-    return (request_time - match.start_time) > buffer
+    return (request_time - utc.localize(match.start_time)) > buffer

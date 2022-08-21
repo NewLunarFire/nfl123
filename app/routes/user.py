@@ -1,7 +1,7 @@
 from app import app
-from app.utils import render
+from app.utils.rendering import render
 from flask import session, request
-from app.repositories.user import get_all_users, get_user_by_name
+from app.repositories.user import get_user_by_name
 from flask import redirect, request, session, url_for
 
 from passlib.hash import pbkdf2_sha256
