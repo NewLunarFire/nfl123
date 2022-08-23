@@ -37,9 +37,9 @@
           <span aria-hidden="true"></span>
         </a>
       </div>  
-      {% if user %}
       <div class="navbar-menu" id="navbar-menu">
         <div class="navbar-start">
+        {% if user %}
           <a href="/week" class="navbar-item"><i class="fa-solid fa-angle-right"></i>&nbsp;{{ gettext("matches") }}</a>
           <a href="/standings" class="navbar-item"><i class="fa-solid fa-medal"></i>&nbsp;{{ gettext("standings") }}</a>
           {% if user.is_admin %}
@@ -50,12 +50,11 @@
             </div>
           </div>
           {% endif %}
-        </div>
+        {% endif %}
       </div>
-      {% endif %}
       <div class="navbar-end">
         {% if user %}
-        <span class="navbar-item"><i class="fa-solid fa-user"></i>&nbsp;{{ user.name }}</span>
+        <div class="navbar-item"><i class="fa-solid fa-user"></i>&nbsp;{{ user.name }}</div>
         {% if lang == "fr" %}
         <a href="/lang/en" class="navbar-item" title="{{ gettext('switch-en') }}"><i class="fa-solid fa-globe"></i>&nbsp;EN</a>
         {% else %}
@@ -68,6 +67,7 @@
         </div>
         {% endif %}
       </div>
+    </div>
     </nav>
     {% block content %}{% endblock %}
     <footer class="footer">
