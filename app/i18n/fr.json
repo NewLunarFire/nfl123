@@ -18,6 +18,7 @@
     "week": "Semaine",
     "username": "Nom d'utilisateur",
     "password": "Mot de passe",
+    "profile": "Profil",
     
     "week/PRE1": "Pré-Saison 1",
     "week/PRE2": "Pré-Saison 2",
@@ -32,5 +33,12 @@
     "regular_season": "Saison régulière",
     "playoffs": "Séries éliminatoires",
 
-    "tooltip_locked": "Vous ne pouvez plus changer votre choix pour ce match"
+    "tooltip_locked": "Vous ne pouvez plus changer votre choix pour ce match",
+
+    "change password": "Changer le mot de passe",
+    "current password": "Mot de passe actuel",
+    "new password": "Nouveau mot de passe",
+    "new password bis": "Confirmer le mot de passe",
+    "pw_change_success": "Mot de passe modifié avec succès",
+    "pw_change_failure": "Le mot de passe n'a pu pêtre modifié"
 }

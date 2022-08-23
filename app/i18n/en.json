@@ -18,6 +18,7 @@
     "week": "Week",
     "username": "User Name",
     "password": "Password",
+    "profile": "Profile",
 
     "week/PRE1": "Preseason 1",
     "week/PRE2": "Preseason 2",
@@ -32,5 +33,12 @@
     "regular_season": "Regular Season",
     "playoffs": "Playoffs",
 
-    "tooltip_locked": "You can no longer change your pick for this match"
+    "tooltip_locked": "You can no longer change your pick for this match",
+
+    "change password": "Change password",
+    "current password": "Current Password",
+    "new password": "New Password",
+    "new password bis": "Confirm New Password",
+    "pw_change_success": "Password changed successfully",
+    "pw_change_failure": "Password could not be changed"
 }

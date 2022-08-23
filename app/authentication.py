@@ -4,7 +4,7 @@ from functools import wraps
 from flask import session, redirect, url_for
 
 
-def authenticated(require_admin=False):
+def authenticated(with_user_param=True, require_admin=False):
     def wrapper(f):
         @wraps(f)
         def decorated(*args, **kwargs):
@@ -18,7 +18,10 @@ def authenticated(require_admin=False):
                 if user and not user.is_admin:
                     return redirect("/week")
 
-            return f(user, *args, **kwargs)
+            if with_user_param:
+                return f(user, *args, **kwargs)
+            else:
+                return f(*args, **kwargs)
 
         return decorated
 

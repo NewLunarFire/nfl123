@@ -22,8 +22,8 @@ teams = TeamRepository()
 
 
 @app.route("/week")
-@authenticated()
-def default_week(user: User):
+@authenticated(with_user_param=False)
+def default_week():
     current_week = get_current_week(datetime.now())
     return redirect(f"week/{current_week.display_name}")
 

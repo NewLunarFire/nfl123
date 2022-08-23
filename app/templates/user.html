@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block preamble %}
+<script type="text/javascript">
+    function changeVisibility(source)
+    {
+        targetId = source.getAttribute("data-target");
+        target = document.getElementById(targetId);
+        button = source.querySelector("button");
+
+        isActive = target.type === "password";
+        target.type = isActive ? "text": "password";
+        if(isActive)
+        {
+            button.classList.remove("is-static");
+            button.classList.add("is-info");
+        }
+        else
+        {
+            button.classList.remove("is-info");
+            button.classList.add("is-static");
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <form class="container" action="/profile" method="POST">
+        <h1 class="title">{{ gettext('profile') }}</h1>
+        <h2 class="subtitle">{{ gettext('change password') }}</h2>
+        {% if is_pw_change %}
+        {% set notification_color = "primary" if is_success else "danger" %}
+            <div class="notification is-{{ notification_color}}">
+            {{ gettext('pw_change_success' if is_success else 'pw_change_failure') }}
+            </div>
+        {% endif %}
+        {{ input(id='current_password', name='current password') }}
+        {{ input(id='password_new', name='new password') }}
+        {{ input(id='password_bis', name='new password bis') }}
+        <input type="submit" class="button is-primary is-fullwidth" value="{{ gettext('submit') }}" />
+    </form>
+</section>
+{% endblock %}
+
+{% macro input(id, name) -%}
+<label for="{{ id }}" class="label">{{ gettext(name) }}</label>
+<div class="field has-addons">
+    <div class="control is-expanded">
+        <input name="{{ id }}" id="{{ id }}" class="input" type="password" required>
+    </div>
+    <div class="control" data-target="{{ id }}" onClick="changeVisibility(this)">
+        <button tabindex="-1" type="button" class="button is-static">
+            <i class="fas fa-eye"></i>
+        </button>
+    </div>
+</div>
+{%- endmacro %}

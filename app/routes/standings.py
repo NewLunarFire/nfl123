@@ -1,5 +1,6 @@
 from collections import namedtuple
 from app import app
+from app.authentication import authenticated
 from app.models import Match, Prediction, User, WeekType
 from app.utils.rendering import render
 from app.repositories.user import get_all_users
@@ -16,12 +17,14 @@ UserScore = namedtuple("UserScore", "name points score")
 
 
 @app.route("/standings")
+@authenticated(with_user_param=False)
 def default_standings():
     week = get_current_week(datetime.now())
     return redirect(url_for("standings", type=week.type.name))
 
 
 @app.route("/standings/<type>")
+@authenticated(with_user_param=False)
 def standings(type: str):
     users = get_all_users()
     week_type = WeekType[type]

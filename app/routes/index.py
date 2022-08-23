@@ -4,6 +4,6 @@ from flask import redirect
 
 
 @app.route("/")
-@authenticated()
-def index(user):
+@authenticated(with_user_param=False)
+def index():
     return redirect("/week")
