@@ -26,6 +26,6 @@ def get_current_week(request_time: datetime):
     return (
         app.session.query(Week)
         .filter(Week.start_time <= request_time)
-        .order_by(Week.start_time)
+        .order_by(Week.start_time.desc())
         .first()
     )
