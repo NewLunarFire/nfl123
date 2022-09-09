@@ -1,15 +1,16 @@
-from app import app
-from app.authentication import authenticated
-from app.models import User
-from app.utils.rendering import render
-from flask import session, request
-from app.repositories.user import get_user_by_name
-from flask import redirect, request, session, url_for
-
+from flask import Blueprint, redirect, request, session, url_for
 from passlib.hash import pbkdf2_sha256
 
+from app.authentication import authenticated
+from app.database import Session
+from app.models import User
+from app.repositories.user import get_user_by_name
+from app.utils.rendering import render
 
-@app.route("/login", methods=["GET", "POST"])
+user_blueprint = Blueprint("user", __name__)
+
+
+@user_blueprint.route("/login", methods=["GET", "POST"])
 def login():
     verification_failed = False
 
@@ -18,19 +19,19 @@ def login():
         if user_id:
             session["user_id"] = user_id
             return redirect("week")
-        else:
-            verification_failed = True
+
+        verification_failed = True
 
     return render("login.html", verification_failed=verification_failed)
 
 
-@app.route("/logout", methods=["GET", "POST"])
+@user_blueprint.route("/logout", methods=["GET", "POST"])
 def logout():
     session.clear()
-    return redirect(url_for("login"))
+    return redirect(url_for("user.login"))
 
 
-@app.route("/profile", methods=["GET", "POST"])
+@user_blueprint.route("/profile", methods=["GET", "POST"])
 @authenticated()
 def profile(user: User):
     is_pw_change: bool = False
@@ -40,6 +41,7 @@ def profile(user: User):
         is_success = do_password_change(user)
 
     return render("user.html", is_pw_change=is_pw_change, is_success=is_success)
+
 
 def do_password_change(user: User) -> bool:
     current_password = request.form["current_password"]
@@ -51,15 +53,15 @@ def do_password_change(user: User) -> bool:
 
     if not pbkdf2_sha256.verify(current_password, user.password):
         return False
-    
-    if not (password_new == password_bis):
+
+    if not password_new == password_bis:
         return False
-    
+
     user.password = pbkdf2_sha256.hash(password_new)
-    app.session.commit()
+    Session.commit()
     return True
-    
-            
+
+
 def do_login(name: str, password: str) -> int:
     user = get_user_by_name(name)
 

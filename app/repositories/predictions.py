@@ -1,16 +1,18 @@
-from app import app
-from app.repositories.match import get_match
 from datetime import datetime, timedelta
-from typing import Literal, List
-from app.models import Match, Prediction
+from typing import List, Literal
+
 from pytz import utc
+
+from app.database import Session
+from app.models import Match, Prediction
+from app.repositories.match import get_match
 
 values = ["home", "away"]
 
 
 def get_predictions(match_ids: List[int], user_id: int) -> List[Prediction]:
     return (
-        app.session.query(Prediction)
+        Session.query(Prediction)
         .filter(Prediction.match_id.in_(match_ids))
         .filter_by(user_id=user_id)
         .all()
@@ -27,7 +29,7 @@ def upsert_prediction(
         return
 
     prediction = (
-        app.session.query(Prediction)
+        Session.query(Prediction)
         .filter_by(match_id=match_id)
         .filter_by(user_id=user_id)
         .first()
@@ -38,9 +40,13 @@ def upsert_prediction(
         prediction.pick = values.index(choice)
     else:
         # Insert
-        app.session.add(
+        Session.add(
             Prediction(match_id=match_id, user_id=user_id, pick=values.index(choice))
         )
+
+
+def get_predictions_for_match(match_id: int) -> List[Prediction]:
+    return Session.query(Prediction).filter_by(match_id=match_id).all()
 
 
 def choice_to_string(choice: int) -> str:

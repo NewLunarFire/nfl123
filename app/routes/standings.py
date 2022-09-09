@@ -1,34 +1,35 @@
 from collections import namedtuple
-from app import app
-from app.authentication import authenticated
-from app.models import Match, Prediction, User, WeekType
-from app.utils.rendering import render
-from app.repositories.user import get_all_users
-from app.repositories.match import get_matches_for_weeks
-from app.repositories.predictions import get_predictions, choice_to_string
-from app.repositories.week import get_weeks_in_year_by_type, get_current_week
-
 from datetime import datetime
-from flask import redirect, url_for
 from operator import attrgetter
 from typing import List, Tuple
 
+from flask import Blueprint, redirect, url_for
+
+from app.authentication import authenticated
+from app.models import Match, Prediction, User, WeekType
+from app.repositories.match import get_matches_for_weeks
+from app.repositories.predictions import choice_to_string, get_predictions
+from app.repositories.user import get_all_users
+from app.repositories.week import get_current_week, get_weeks_in_year_by_type
+from app.utils.rendering import render
+
+standings_blueprint = Blueprint("standings", __name__)
 UserScore = namedtuple("UserScore", "name points score")
 
 
-@app.route("/standings")
+@standings_blueprint.route("/standings")
 @authenticated(with_user_param=False)
 def default_standings():
     week = get_current_week(datetime.now())
-    return redirect(url_for("standings", type=week.type.name))
+    return redirect(url_for("standings.standings", season_type=week.type.name))
 
 
-@app.route("/standings/<type>")
+@standings_blueprint.route("/standings/<season_type>")
 @authenticated(with_user_param=False)
-def standings(type: str):
+def standings(season_type: str):
     users = get_all_users()
-    week_type = WeekType[type]
-    weeks = get_weeks_in_year_by_type(type=week_type, year=2022)
+    week_type = WeekType[season_type]
+    weeks = get_weeks_in_year_by_type(week_type=week_type, year=2022)
 
     matches = {
         match.id: match
@@ -41,7 +42,10 @@ def standings(type: str):
 
     user_scores.sort(key=attrgetter("points", "score"), reverse=True)
     return render(
-        "standings.html", users=user_scores, total_matches=total_matches, week_type=type
+        "standings.html",
+        users=user_scores,
+        total_matches=total_matches,
+        week_type=season_type,
     )
 
 
@@ -53,9 +57,9 @@ def calculate_points_for_user(matches: List[Match], user: User) -> UserScore:
         for prediction in get_predictions(user_id=user.id, match_ids=matches.keys())
     }
 
-    for (id, match) in matches.items():
+    for (match_id, match) in matches.items():
         (win, points) = calculate_points_for_match(
-            match=match, prediction=predictions.get(id)
+            match=match, prediction=predictions.get(match_id)
         )
         total_score += win
         total_points += points

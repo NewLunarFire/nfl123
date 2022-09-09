@@ -1,12 +1,26 @@
-from flask import Flask, _app_ctx_stack, g
-from app.database import SessionLocal
-from app.utils.time import to_eastern
 from datetime import datetime, timezone
-from sqlalchemy.orm import scoped_session
+
+from flask import Flask, g
+
+from app.routes.admin.result import result_blueprint
+from app.routes.error import error_blueprint
+from app.routes.index import index_blueprint
+from app.routes.lang import lang_blueprint
+from app.routes.match import match_blueprint
+from app.routes.standings import standings_blueprint
+from app.routes.user import user_blueprint
+from app.utils.time import to_eastern
 
 app = Flask(__name__)
-app.session = scoped_session(SessionLocal, scopefunc=_app_ctx_stack.__ident_func__)
 app.secret_key = "patatepoil"
+
+app.register_blueprint(index_blueprint)
+app.register_blueprint(error_blueprint)
+app.register_blueprint(lang_blueprint)
+app.register_blueprint(match_blueprint)
+app.register_blueprint(standings_blueprint)
+app.register_blueprint(user_blueprint)
+app.register_blueprint(result_blueprint)
 
 
 @app.before_request
@@ -21,12 +35,9 @@ def after_request_callback(response):
 
 
 @app.template_filter()
-def to_eastern_time(dt, granularity="minutes"):
-    format = "%Y-%m-%d %H:%M"
+def to_eastern_time(date_time, granularity="minutes"):
+    date_format = "%Y-%m-%d %H:%M"
     if granularity == "seconds":
-        format = format + ":%S"
+        date_format = date_format + ":%S"
 
-    return to_eastern(dt, format=format)
-
-
-from app import routes
+    return to_eastern(date_time, format=date_format)

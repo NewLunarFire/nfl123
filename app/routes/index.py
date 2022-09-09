@@ -1,9 +1,11 @@
-from app import app
+from flask import Blueprint, redirect
+
 from app.authentication import authenticated
-from flask import redirect
+
+index_blueprint = Blueprint("index", __name__)
 
 
-@app.route("/")
+@index_blueprint.route("/")
 @authenticated(with_user_param=False)
 def index():
     return redirect("/week")

@@ -9,20 +9,38 @@
         }
     }
 
+    label {
+        border-width: 2px;
+        border-style: hidden;
+    }
+
+    label.saved {
+        border-style: solid;
+        border-color: lightgray;
+    }
+
     label.unselected.win {
-        border: 1px dashed green;
+        border-style: dashed ;
+        border-color: green;
     }
 
     input:checked + label {
-        border: 1px solid gray;
+        border-style: dashed;
+        border-color: gray;
+    }
+
+    input:checked + label.saved {
+        border-style: solid;
     }
 
     input:checked + label.win {
-        border: 1px solid green;
+        border-style: solid;
+        border-color: green;
     }
 
     input:checked + label.loss {
-        border: 1px solid red;
+        border-style: solid;
+        border-color: red;
     }
 
     input[type=radio] {
@@ -49,6 +67,11 @@
         background-color: #eeeeee;
         color: #666666;
     }
+
+    .record {
+        font-size: .85rem;
+        font-style: italic;
+    }
 </style>
 {% endblock %}
 
@@ -74,48 +97,16 @@
         {% for match in matches %}
         <div class="block">
             <div class="columns is-vcentered">
-                <div class="column">
-                    {% set label_classes = [] %}
-                    {% if match.final %}
-                        {% set label_classes = label_classes + ['win' if match.away_score >= match.home_score else 'loss'] %}    
-                        {% if not match.user_selected %}
-                            {% set label_classes = label_classes + ['unselected'] %}
-                        {% endif %}
-                    {% endif %}
-                    {% if match.locked %}
-                        {% set label_classes = label_classes + ['locked'] %}
-                    {% endif %}
-                    <input type="radio" id="match_{{ match.id }}_away" name="match_{{ match.id }}" value="away" {% if predictions[match.id] == "away" %}checked="checked"{% endif %} {% if match.locked %}disabled="disabled"{% endif %}>
-                    <label class="box column {{ label_classes | join(' ') }}" style="text-align: right;" for="match_{{ match.id }}_away" {% if match.locked %}title="{{ gettext("tooltip_locked") }}"{% endif %}>
-                        {{ match.away_team }}
-                        <img class="logo" src="{{ url_for('static', filename=match.away_logo) }}" />
-                    </label>
-                </div>
+                {{ away_team(match) }}
                 <div class="column is-narrow-tablet" style="text-align: center;">
-                    {% if match.final %}
-                        {{ match.away_score }} - {{ match.home_score }} <br />
-                        <span class="{{ 'win' if match.user_win else 'loss' }}">{{ "%+d"|format(match.user_score) }}</span>
+                    {% if match.is_final() %}
+                        {{ match.result.away_score }} - {{ match.result.home_score }} <br />
+                        <span class="{{ 'win' if match.user_win else 'loss' }}">{{ "%+d"|format(match.user_result.score) }}</span>
                     {% else %}
                         @
                     {% endif %}
                 </div>
-                <div class="column">
-                    {% set label_classes = [] %}
-                    {% if match.final %}
-                        {% set label_classes = label_classes + ['win' if match.home_score >= match.away_score else 'loss'] %}    
-                        {% if not match.user_selected %}
-                            {% set label_classes = label_classes + ['unselected'] %}
-                        {% endif %}
-                    {% endif %}
-                    {% if match.locked %}
-                        {% set label_classes = label_classes + ['locked'] %}
-                    {% endif %}
-                    <input type="radio" id="match_{{ match.id }}_home" name="match_{{ match.id }}" value="home" {% if predictions[match.id] == "home" %}checked="checked"{% endif %} {% if match.locked %}disabled="disabled"{% endif %}>
-                    <label class="box column {{ label_classes | join(' ') }}" style="text-align: left;" for="match_{{ match.id }}_home" {% if match.locked %}title="{{ gettext("tooltip_locked") }}"{% endif %}>
-                        <img class="logo" src="{{ url_for('static', filename=match.home_logo) }}" />
-                        {{ match.home_team }}
-                    </label>
-                </div>
+                {{ home_team(match) }}
             </div>
             <div class="columns is-mobile">
                 <div class="column is-full" style="text-align: center;">{{ match.start_time | to_eastern_time }}</div>
@@ -126,3 +117,72 @@
     </form>
 </section>
 {% endblock %}
+
+{% macro away_team(match) -%}
+<div class="column">
+    {% set is_checked = predictions[match.id] == "away" %}    
+    {{ hidden_radio(match_id=match.id, side="away", checked=is_checked, disabled=match.is_locked) }}
+    {% call team_label(match, "away", is_checked) %}
+        {{ win_record(match.away_team_record) }}
+        {{ match.away_team.full_name }}
+        {{ team_logo(match.away_team.logo()) }}
+        {% if match.is_locked %}
+            <br />
+            <div class="is-size-7 pr-1 pt-2">{{ match.other_picks_away | join(', ') }}&nbsp;<i class="fas fa-user pl-1"></i></div>
+        {% endif %}
+    {% endcall %}
+</div>
+{%- endmacro %}
+
+{% macro home_team(match) -%}
+<div class="column">
+    {% set is_checked = predictions[match.id] == "home" %}    
+    {{ hidden_radio(match_id=match.id, side="home", checked=is_checked, disabled=match.is_locked) }}    
+    {% call team_label(match, "home", is_checked) %}
+        {{ team_logo(match.home_team.logo()) }}
+        {{ match.home_team.full_name }}
+        {{ win_record(match.home_team_record) }}
+        {% if match.is_locked %}
+            <br />
+            <div class="is-size-7 pl-1 pt-2"><i class="fas fa-user pr-1"></i>&nbsp;{{ match.other_picks_home | join(', ') }}</div>
+        {% endif %}
+    {% endcall %}
+</div>
+{%- endmacro %}
+
+{% macro hidden_radio(match_id, side, checked, disabled) -%}
+<input type="radio" id="match_{{ match_id }}_{{ side }}" name="match_{{ match_id }}" value="{{ side }}" {% if checked %}checked="checked"{% endif %} {% if disabled %}disabled="disabled"{% endif %}>
+{%- endmacro %}
+
+{% macro team_logo(logo) -%}
+<img class="logo" src="{{ url_for('static', filename=logo) }}" />
+{%- endmacro %}
+
+{% macro win_record(record) -%}
+<span class="record">{{ (record[0:2] if record[2] == 0 else record) | join ('-') }}</span>
+{%- endmacro %}
+
+{% macro team_label(match, side, is_checked) -%}
+{% set label_classes = ["has-text-left" if side == "home" else "has-text-right"] %}
+{% if match.is_final() %}
+    {% if side == "home" %}
+        {% set label_classes = label_classes + ['win' if match.result.home_score >= match.result.away_score else 'loss'] %}    
+    {% else %}
+        {% set label_classes = label_classes + ['win' if match.result.away_score >= match.result.home_score else 'loss'] %}
+    {% endif %}
+
+    {% if not match.has_user_selected() %}
+        {% set label_classes = label_classes + ['unselected'] %}
+    {% endif %}
+{% endif %}
+{% if match.is_locked %}
+    {% set label_classes = label_classes + ['locked'] %}
+{% endif %}
+{% if is_checked %}
+    {% set label_classes = label_classes + ['saved'] %}
+{% endif %}
+
+<label class="box column {{ label_classes | join(' ') }}" for="match_{{ match.id }}_{{ side }}" {% if match.is_locked %}title="{{ gettext("tooltip_locked") }}"{% endif %}>
+    {{ caller() }}
+</label>
+{%- endmacro %}

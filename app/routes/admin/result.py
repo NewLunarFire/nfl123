@@ -1,24 +1,27 @@
-from app import app
-from app.authentication import authenticated
-from app.utils.rendering import render
-from app.models import Match, User
-from app.repositories.team_repository import TeamRepository
-from app.repositories.results import is_ot, upsert_result
-from app.repositories.week import get_all_weeks_in_year, get_week, get_current_week
-
 from datetime import datetime
-from flask import request, redirect
+
+from flask import Blueprint, redirect, request
+
+from app.authentication import authenticated
+from app.database import Session
+from app.models import Match, User
+from app.repositories.results import result_to_dict, upsert_result
+from app.repositories.team_repository import TeamRepository
+from app.repositories.week import (get_all_weeks_in_year, get_current_week,
+                                   get_week)
+from app.utils.rendering import render
 
 teams = TeamRepository()
+result_blueprint = Blueprint("results", __name__)
 
 
-@app.route("/admin/result")
+@result_blueprint.route("/admin/result")
 def results_redirect():
     current_week = get_current_week(datetime.now())
     return redirect(f"/admin/result/{current_week.display_name}")
 
 
-@app.route("/admin/result/<week_name>", methods=["GET", "POST"])
+@result_blueprint.route("/admin/result/<week_name>", methods=["GET", "POST"])
 @authenticated(require_admin=True)
 def match_results(user: User, week_name: str):
     week = get_week(name=week_name, year=2022)
@@ -27,8 +30,7 @@ def match_results(user: User, week_name: str):
         process_results(request.form)
 
     matches = [
-        to_dict(match)
-        for match in app.session.query(Match).filter_by(week=week.id).all()
+        to_dict(match) for match in Session.query(Match).filter_by(week=week.id).all()
     ]
 
     return render(
@@ -40,17 +42,8 @@ def match_results(user: User, week_name: str):
 
 
 def to_dict(match: Match) -> dict:
-    result = {}
-
-    if match.result:
-        result = {
-            "home_score": match.result.home_score,
-            "away_score": match.result.away_score,
-            "ot": is_ot(match.result.result_type),
-        }
-
     return {
-        **result,
+        **result_to_dict(match.result),
         "home_team": teams.get_team_name(match.home_team),
         "away_team": teams.get_team_name(match.away_team),
         "start_time": match.start_time,
@@ -66,25 +59,24 @@ def process_results(picks: dict) -> None:
             continue
 
         if key.startswith("match_"):
-            i1 = key.index("_")
-            i2 = key.index("_", i1 + 1)
+            underscore_1 = key.index("_")
+            underscore_2 = key.index("_", underscore_1 + 1)
 
-            match_id = int(key[i1 + 1 : i2])
-            type = key[i2 + 1 :]
+            match_id = int(key[underscore_1 + 1 : underscore_2])
+            pick_type = key[underscore_2 + 1 :]
             res = results.get(match_id, {"ot": False})
 
-            if type == "home":
+            if pick_type == "home":
                 res["home"] = int(value)
-            elif type == "away":
+            elif pick_type == "away":
                 res["away"] = int(value)
-            elif type == "ot":
+            elif pick_type == "ot":
                 res["ot"] = True
             else:
                 continue
 
             results[match_id] = res
 
-    print(results)
     for match_id, result in results.items():
         upsert_result(
             match_id=match_id,
@@ -93,4 +85,4 @@ def process_results(picks: dict) -> None:
             is_ot=result["ot"],
         )
 
-    app.session.commit()
+    Session.commit()

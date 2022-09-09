@@ -1,7 +1,1 @@
-from . import error
-from . import index
-from . import lang
-from . import match
-from . import user
-from . import admin
-from . import standings
+from . import admin, match, standings, user

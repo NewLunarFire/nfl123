@@ -1,36 +1,84 @@
-from app import app
-from app.models import Match, User
+from dataclasses import dataclass
 from datetime import datetime
-from flask import request, abort
-from app.authentication import authenticated
-from app.repositories.match import get_matches_for_week
-from app.repositories.results import is_ot
-from app.repositories.team_repository import TeamRepository
-from app.repositories.week import get_all_weeks_in_year, get_week, get_current_week
+from typing import List, Tuple
 
-from app.repositories.predictions import (
-    get_predictions,
-    upsert_prediction,
-    choice_to_string,
-    is_game_started,
-)
+from flask import Blueprint, abort, redirect, request
+
+from app.authentication import authenticated
+from app.database import Session
+from app.enums.week_type import WeekType
+from app.models import Match, MatchResult, User
+from app.repositories.match import get_matches_for_team, get_matches_for_week
+from app.repositories.predictions import (choice_to_string, get_predictions,
+                                          get_predictions_for_match,
+                                          is_game_started, upsert_prediction)
+from app.repositories.results import result_is_ot
+from app.repositories.team_repository import TeamInfo, TeamRepository
+from app.repositories.user import get_all_users
+from app.repositories.week import (get_all_weeks_in_year, get_current_week,
+                                   get_week)
 from app.utils.rendering import render
 from app.utils.time import get_request_time
-from flask import redirect
+
+match_blueprint = Blueprint("match", __name__)
 
 teams = TeamRepository()
 
 
-@app.route("/week")
+@dataclass
+class MatchUserResult:
+    score: int
+    win: bool
+
+
+@dataclass
+class MatchResultInfo:
+    home_score: int
+    away_score: int
+    is_ot: bool
+
+
+@dataclass
+class MatchInfo:
+    id: int
+    home_team: TeamInfo
+    home_team_record: Tuple[int, int, int]
+    away_team: TeamInfo
+    away_team_record: Tuple[int, int, int]
+    start_time: datetime
+
+    is_locked: bool
+    result: MatchResultInfo
+
+    user_pick: str
+    user_result: MatchUserResult
+
+    other_picks_home: List[str]
+    other_picks_away: List[str]
+
+    def is_final(self) -> bool:
+        return bool(self.result)
+
+    def get_user_score(self) -> int:
+        return self.user_result.score if self.user_result else 0
+
+    def get_user_win(self) -> bool:
+        return self.user_result.win if self.user_result else False
+
+    def has_user_selected(self) -> bool:
+        return bool(self.user_pick)
+
+
+@match_blueprint.route("/week")
 @authenticated(with_user_param=False)
 def default_week():
     current_week = get_current_week(datetime.now())
     return redirect(f"week/{current_week.display_name}")
 
 
-@app.route("/week/<week_name>", methods=["GET", "POST"])
+@match_blueprint.route("/week/<week_name>", methods=["GET", "POST"])
 @authenticated()
-def week(user: User, week_name: str):
+def week_matches(user: User, week_name: str):
     request_time = get_request_time()
     week = get_week(name=week_name, year=2022)
 
@@ -53,12 +101,14 @@ def week(user: User, week_name: str):
         else {}
     )
 
+    users = get_all_users()
     matches = [
-        to_dict(match, predictions.get(match.id), request_time) for match in matches
+        to_match_info(match, predictions.get(match.id), users=users)
+        for match in matches
     ]
-    points = sum([match.get("user_score", 0) for match in matches])
-    score = sum([match.get("user_win", False) for match in matches])
-    total_matches = sum([match["final"] for match in matches])
+    points = sum(match.get_user_score() for match in matches)
+    score = sum(match.get_user_win() for match in matches)
+    total_matches = sum(match.is_final() for match in matches)
 
     return render(
         "week.html",
@@ -74,47 +124,96 @@ def week(user: User, week_name: str):
     )
 
 
-def to_dict(match: Match, pick: str, request_time: datetime) -> dict:
-    result = {}
-    prediction = {}
+def to_match_info(match: Match, pick: str, users: List[User]) -> MatchInfo:
+    result = None
+    user_dict = {user.id: user.name for user in users}
 
     if match.result:
-        result = {
-            "home_score": match.result.home_score,
-            "away_score": match.result.away_score,
-            "ot": is_ot(match.result.result_type),
-        }
+        result = MatchResultInfo(
+            home_score=match.result.home_score,
+            away_score=match.result.away_score,
+            is_ot=result_is_ot(match.result.result_type),
+        )
 
-        if pick:
-            if pick == "home":
-                score = match.result.home_score - match.result.away_score
-                win = match.result.home_score >= match.result.away_score
+    is_locked = is_game_started(request_time=get_request_time(), match=match)
+    other_picks_home = []
+    other_picks_away = []
+
+    if is_locked:
+        for prediction in get_predictions_for_match(match_id=match.id):
+            name = user_dict[prediction.user_id]
+            (other_picks_away if prediction.pick else other_picks_home).append(name)
+
+    return MatchInfo(
+        id=match.id,
+        home_team=teams.get_team_info(match.home_team),
+        home_team_record=get_team_record(team_id=match.home_team),
+        away_team=teams.get_team_info(match.away_team),
+        away_team_record=get_team_record(team_id=match.away_team),
+        start_time=match.start_time,
+        is_locked=is_locked,
+        result=result,
+        user_pick=pick,
+        user_result=match_user_result(match, pick),
+        other_picks_away=other_picks_away,
+        other_picks_home=other_picks_home,
+    )
+
+
+def match_user_result(match: Match, pick: str):
+    if not match.result:
+        return None
+
+    if pick:
+        if pick == "home":
+            return MatchUserResult(
+                score=match.result.home_score - match.result.away_score,
+                win=match.result.home_score >= match.result.away_score,
+            )
+
+        return MatchUserResult(
+            score=match.result.away_score - match.result.home_score,
+            win=match.result.away_score >= match.result.home_score,
+        )
+
+    return MatchUserResult(
+        score=-abs(match.result.home_score - match.result.away_score), win=False
+    )
+
+
+def get_team_record(team_id: int):
+    matches = get_matches_for_team(team_id=team_id)
+    win = 0
+    loss = 0
+    tie = 0
+
+    for match in matches:
+        if match.result and match.week_rel.type in [WeekType.season, WeekType.playoffs]:
+            is_home = match.home_team == team_id
+            result: MatchResult = match.result
+
+            is_win: bool
+            is_loss: bool
+            is_tie: bool
+
+            if is_home:
+                is_win = result.home_score > result.away_score
+                is_loss = result.home_score < result.away_score
+                is_tie = result.home_score == result.away_score
+
             else:
-                score = match.result.away_score - match.result.home_score
-                win = match.result.away_score >= match.result.home_score
-        else:
-            score = -abs(match.result.home_score - match.result.away_score)
-            win = False
+                is_win = result.away_score > result.home_score
+                is_loss = result.away_score < result.home_score
+                is_tie = result.away_score == result.home_score
 
-        prediction = {
-            "user_score": score,
-            "user_win": win,
-            "user_selected": not not pick,
-            "user_pick": pick,
-        }
+            if is_win:
+                win = win + 1
+            elif is_loss:
+                loss = loss + 1
+            elif is_tie:
+                tie = tie + 1
 
-    return {
-        **result,
-        **prediction,
-        "home_team": teams.get_team_name(match.home_team),
-        "home_logo": teams.get_team_logo(match.home_team),
-        "away_team": teams.get_team_name(match.away_team),
-        "away_logo": teams.get_team_logo(match.away_team),
-        "start_time": match.start_time,
-        "id": match.id,
-        "final": bool(match.result),
-        "locked": is_game_started(request_time=request_time, match=match),
-    }
+    return (win, loss, tie)
 
 
 def process_picks(picks: dict, user_id: int, request_time: datetime) -> None:
@@ -128,7 +227,7 @@ def process_picks(picks: dict, user_id: int, request_time: datetime) -> None:
                 request_time=request_time,
             )
 
-    app.session.commit()
+    Session.commit()
 
 
 def points_color(points: int) -> str:
@@ -142,7 +241,7 @@ def score_color(score: int, total: int) -> str:
     pct = score / total
     if pct > 0.6:
         return "green"
-    elif pct > 0.4:
+    if pct > 0.4:
         return "orange"
-    else:
-        return "red"
+
+    return "red"

@@ -1,9 +1,10 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Enum
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Boolean, Column, Enum, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 from sqlalchemy.types import DateTime
-from .database import Base
 
 from app.enums.week_type import WeekType
+
+from .database import Base
 
 
 class User(Base):
@@ -25,7 +26,10 @@ class Match(Base):
     away_team = Column("away_team", Integer, nullable=False)
     start_time = Column("start_time", DateTime, nullable=False)
 
-    result = relationship("MatchResult", uselist=False)
+    week_rel = relationship(
+        "Week", uselist=False, foreign_keys=[week], primaryjoin="Week.id == Match.week"
+    )
+    result = relationship("MatchResult", uselist=False, back_populates="match")
 
 
 class MatchResult(Base):
@@ -36,7 +40,7 @@ class MatchResult(Base):
     home_score = Column("home_score", Integer, nullable=False)
     away_score = Column("away_score", Integer, nullable=False)
 
-    match = relationship("Match", uselist=False)
+    match = relationship("Match", uselist=False, back_populates="result")
 
 
 class Team(Base):
