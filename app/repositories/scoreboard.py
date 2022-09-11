@@ -8,8 +8,6 @@ def update_match(match_id: int, away_score: int, home_score: int, progress: str)
         "progress": progress,
     }
 
-    print(matches[match_id])
-
 
 def remove_match(match_id: int):
     del matches[match_id]
