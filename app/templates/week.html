@@ -100,11 +100,17 @@
                 {{ away_team(match) }}
                 <div class="column is-narrow-tablet" style="text-align: center;">
                     {% if match.is_final() %}
-                        {{ match.result.away_score }} - {{ match.result.home_score }} <br />
-                        <span class="{{ 'win' if match.user_win else 'loss' }}">{{ "%+d"|format(match.user_result.score) }}</span>
+                        {{ match_score(match.result.away_score, match.result.home_score, "Final/OT" if match.result.is_ot else "Final") }} <br />
+                        <span class="{{ 'win' if match.user_result.win else 'loss' }}">{{ "%+d"|format(match.user_result.score) }}</span>
                     {% else %}
-                        @
+                        {% if match.scoreboard %}
+                            {{ match_score(match.scoreboard.away_score, match.scoreboard.home_score, match.scoreboard.progress) }}
+                        {% else %}
+                            @
+                        {% endif %}
                     {% endif %}
+                    <br />
+                    
                 </div>
                 {{ home_team(match) }}
             </div>
@@ -160,6 +166,11 @@
 
 {% macro win_record(record) -%}
 <span class="record">{{ (record[0:2] if record[2] == 0 else record) | join ('-') }}</span>
+{%- endmacro %}
+
+{% macro match_score(away_score, home_score, status) -%}
+    {{ away_score }} - {{ home_score }} <br />
+    {{ status }}
 {%- endmacro %}
 
 {% macro team_label(match, side, is_checked) -%}

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 from sqlalchemy import or_
@@ -24,6 +25,18 @@ def get_matches_for_team(team_id: int) -> List[Match]:
         .filter(or_(Match.away_team == team_id, Match.home_team == team_id))
         .all()
     )
+
+
+def find_match(away_team: int, home_team: int, start_time: datetime) -> Match:
+    return (
+        __query_match()
+        .filter_by(away_team=away_team, home_team=home_team, start_time=start_time)
+        .first()
+    )
+
+
+def get_next_match(request_time: datetime) -> Match:
+    return __query_match().filter(Match.start_time > request_time).first()
 
 
 def get_all_matches() -> List[Match]:

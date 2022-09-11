@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from flask import Blueprint, abort, redirect, request
 
@@ -9,14 +9,18 @@ from app.database import Session
 from app.enums.week_type import WeekType
 from app.models import Match, MatchResult, User
 from app.repositories.match import get_matches_for_team, get_matches_for_week
-from app.repositories.predictions import (choice_to_string, get_predictions,
-                                          get_predictions_for_match,
-                                          is_game_started, upsert_prediction)
+from app.repositories.predictions import (
+    choice_to_string,
+    get_predictions,
+    get_predictions_for_match,
+    is_game_started,
+    upsert_prediction,
+)
 from app.repositories.results import result_is_ot
+from app.repositories.scoreboard import get_scoreboard_for_match
 from app.repositories.team_repository import TeamInfo, TeamRepository
 from app.repositories.user import get_all_users
-from app.repositories.week import (get_all_weeks_in_year, get_current_week,
-                                   get_week)
+from app.repositories.week import get_all_weeks_in_year, get_current_week, get_week
 from app.utils.rendering import render
 from app.utils.time import get_request_time
 
@@ -55,6 +59,8 @@ class MatchInfo:
 
     other_picks_home: List[str]
     other_picks_away: List[str]
+
+    scoreboard: Dict
 
     def is_final(self) -> bool:
         return bool(self.result)
@@ -157,6 +163,7 @@ def to_match_info(match: Match, pick: str, users: List[User]) -> MatchInfo:
         user_result=match_user_result(match, pick),
         other_picks_away=other_picks_away,
         other_picks_home=other_picks_home,
+        scoreboard=get_scoreboard_for_match(match.id),
     )
 
 
