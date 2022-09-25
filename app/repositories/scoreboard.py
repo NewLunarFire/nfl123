@@ -10,7 +10,8 @@ def update_match(match_id: int, away_score: int, home_score: int, progress: str)
 
 
 def remove_match(match_id: int):
-    del matches[match_id]
+    if match_id in matches:
+        del matches[match_id]
 
 
 def get_scoreboard_for_match(match_id: int):
