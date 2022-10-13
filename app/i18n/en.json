@@ -19,6 +19,8 @@
     "username": "User Name",
     "password": "Password",
     "profile": "Profile",
+    "picks": "Picks",
+    "picks_saved": "picks saved",
 
     "week/PRE1": "Preseason 1",
     "week/PRE2": "Preseason 2",

@@ -91,8 +91,10 @@ def week_matches(user: User, week_name: str):
     if not week:
         abort(404)
 
-    if request.method == "POST" and user:
-        process_picks(request.form, user.id, request_time)
+    save_requested = (request.method == "POST")
+    total_requested, total_saved = 0, 0
+    if save_requested:
+        total_requested, total_saved = process_picks(request.form, user.id, request_time)
 
     matches = get_matches_for_week(week=week.id)
 
@@ -115,6 +117,7 @@ def week_matches(user: User, week_name: str):
     points = sum(match.get_user_score() for match in matches)
     score = sum(match.get_user_win() for match in matches)
     total_matches = sum(match.is_final() for match in matches)
+    total_picks = sum(bool(match.user_pick) for match in matches)
 
     return render(
         "week.html",
@@ -125,6 +128,10 @@ def week_matches(user: User, week_name: str):
         points=points,
         score=score,
         total_matches=total_matches,
+        total_picks=total_picks,
+        save_requested=save_requested,
+        total_requested=total_requested,
+        total_saved=total_saved,
         points_color=points_color,
         score_color=score_color,
     )
@@ -223,11 +230,15 @@ def get_team_record(team_id: int):
     return (win, loss, tie)
 
 
-def process_picks(picks: dict, user_id: int, request_time: datetime) -> None:
+def process_picks(picks: dict, user_id: int, request_time: datetime) -> (int, int):
+    total_requested = 0
+    total_saved = 0
+
     for key, value in picks.items():
         if key.startswith("match_"):
             match_id = int(key[6:])
-            upsert_prediction(
+            total_requested += 1
+            total_saved += upsert_prediction(
                 match_id=match_id,
                 user_id=user_id,
                 choice=value,
@@ -235,6 +246,7 @@ def process_picks(picks: dict, user_id: int, request_time: datetime) -> None:
             )
 
     Session.commit()
+    return (total_requested, total_saved)
 
 
 def points_color(points: int) -> str:

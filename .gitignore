@@ -139,3 +139,9 @@ cython_debug/
 
 # SqLite Database
 db.sqlite
+
+# Data
+data/
+
+# Scripts
+scripts/

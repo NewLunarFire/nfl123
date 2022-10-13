@@ -21,12 +21,12 @@ def get_predictions(match_ids: List[int], user_id: int) -> List[Prediction]:
 
 def upsert_prediction(
     match_id: int, user_id: int, choice: Literal["home", "away"], request_time: datetime
-) -> None:
+) -> bool:
     if choice not in ["home", "away"]:
-        return
+        return False
 
     if is_game_started(request_time=request_time, match=get_match(match_id=match_id)):
-        return
+        return False
 
     prediction = (
         Session.query(Prediction)
@@ -43,6 +43,8 @@ def upsert_prediction(
         Session.add(
             Prediction(match_id=match_id, user_id=user_id, pick=values.index(choice))
         )
+    
+    return True
 
 
 def get_predictions_for_match(match_id: int) -> List[Prediction]:

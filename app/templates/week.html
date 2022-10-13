@@ -73,11 +73,23 @@
         font-style: italic;
     }
 </style>
+<script type="text/javascript">
+    function deleteNotification(source)
+    {
+        source.parentElement.remove()
+    }
+</script>
 {% endblock %}
 
 {% block content %}
 <section class="section">
     <h1 class="title">Matchs - {{ gettext('week') + " " + week.display_name if week.display_name.isdigit() else gettext("week/" + week.display_name) }}</h1>
+    {% if save_requested %}
+    <div class="notification is-primary">
+        <button class="delete" onClick="deleteNotification(this)"></button>
+        {{ total_saved }} / {{ total_requested }} {{ gettext("picks_saved") }}
+    </div>
+    {% endif %}
     <nav class="level">
         <div class="level-item has-text-centered">
             <div>
@@ -89,6 +101,12 @@
             <div>
             <p class="heading">{{ gettext("score") }}</p>
             <p class="title" style="color: {{ score_color(score, total_matches) }}">{{ score }}/{{ total_matches }}</p>
+            </div>
+        </div>
+        <div class="level-item has-text-centered">
+            <div>
+            <p class="heading">{{ gettext("picks") }}</p>
+            <p class="title">{{ total_picks }}/{{ matches | length }}</p>
             </div>
         </div>
     </nav>
