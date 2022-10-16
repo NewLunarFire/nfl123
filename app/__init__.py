@@ -8,6 +8,7 @@ from app.routes.index import index_blueprint
 from app.routes.lang import lang_blueprint
 from app.routes.match import match_blueprint
 from app.routes.standings import standings_blueprint
+from app.routes.sw import sw_blueprint
 from app.routes.user import user_blueprint
 from app.updater import start_updater
 from app.utils.time import to_eastern
@@ -27,6 +28,7 @@ else:
     app.register_blueprint(lang_blueprint)
     app.register_blueprint(match_blueprint)
     app.register_blueprint(standings_blueprint)
+    app.register_blueprint(sw_blueprint)
     app.register_blueprint(user_blueprint)
     app.register_blueprint(result_blueprint)
 
