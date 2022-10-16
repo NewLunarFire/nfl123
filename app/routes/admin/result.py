@@ -7,7 +7,8 @@ from app.database import Session
 from app.models import Match, User
 from app.repositories.results import result_to_dict, upsert_result
 from app.repositories.team_repository import TeamRepository
-from app.repositories.week import get_all_weeks_in_year, get_current_week, get_week
+from app.repositories.week import (get_all_weeks_in_year, get_current_week,
+                                   get_week)
 from app.utils.rendering import render
 
 teams = TeamRepository()

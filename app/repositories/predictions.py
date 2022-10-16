@@ -43,7 +43,7 @@ def upsert_prediction(
         Session.add(
             Prediction(match_id=match_id, user_id=user_id, pick=values.index(choice))
         )
-    
+
     return True
 
 

@@ -5,14 +5,20 @@
     thead {
         font-weight: bold;
     }
+
+    #per-week-table th, #per-week-table td {
+        border-right: 1px solid #dbdbdb;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <section class="section">
     <div class="container">
-        <h1 class="subtitle">{{ gettext("standings") }}</h1>
+        <h1 class="title">{{ gettext("standings") }}</h1>
         {% include 'components/chooser.html' %}
+        <hr />
+        <h2 class="subtitle">Cumulative</h2>
         <table class="table is-fullwidth">
             <thead>
                 <tr>
@@ -36,6 +42,32 @@
                 </tr>
             </tbody>
         </table>
+        <hr />
+        <h2 class="subtitle">Per week</h2>
+        <div class="table-container">
+            <table class="table" id="per-week-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        {% for week in weeks %}
+                        <th colspan="2" style="text-align: center">{{ week.display_name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user, scores in all_users_scores.items() %}
+                    <tr>
+                        <th>{{ user.name }}</td>
+                        {% for week in weeks %}
+                        {% set score = scores[week] %}
+                        <td style="color: {{ points_color(score.points) }}">{{ "%+d"|format(score.points) }}</td>
+                        <td style="color: {{ score_color(score.score, score.total_matches) }}">{{ score.score }}/{{ score.total_matches }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </section>
 {% endblock %}

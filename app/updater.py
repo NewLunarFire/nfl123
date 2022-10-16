@@ -1,9 +1,9 @@
-import sys
-from pathlib import Path
 import json
 import os
+import sys
 import threading
 from datetime import datetime, timedelta
+from pathlib import Path
 from urllib.request import urlopen
 
 if __name__ == "__main__":
@@ -11,8 +11,8 @@ if __name__ == "__main__":
     sys.path.append(str(path_root))
     print(sys.path)
 
-
 from app.database import Session
+from app.logger import logger
 from app.repositories.match import find_match, get_next_match
 from app.repositories.results import upsert_result
 from app.repositories.scoreboard import remove_match, update_match
@@ -63,7 +63,7 @@ def __fetch_scoreboard():
 def __next_update_time(matches_in_progress: bool):
     if matches_in_progress:
         next_update = timedelta(minutes=5)  # Update again in 5 minutes
-        print(
+        logger.info(
             f"Matches in progress, next update in {next_update} ({next_update.total_seconds()} seconds)"
         )
         return next_update.total_seconds()
@@ -71,19 +71,19 @@ def __next_update_time(matches_in_progress: bool):
     current_time = datetime.now()
     next_match = get_next_match(request_time=current_time)
     if not next_match:
-        print("No future matches, do not update scoreboard again")
+        logger.info("No future matches, do not update scoreboard again")
         return -1
 
     next_update = next_match.start_time - current_time
     next_seconds = next_update.total_seconds()
-    print(
+    logger.info(
         f"Next match at {next_match.start_time}, next update in {next_update} ({next_seconds} seconds)"
     )
     return next_seconds
 
 
 def __get_scoreboard() -> int:
-    print("Updating scoreboard from ESPN")
+    logger.info("Updating scoreboard from ESPN")
     scoreboard = json.loads(__fetch_scoreboard())
     nfl = scoreboard["sports"][0]["leagues"][0]
 
@@ -125,16 +125,22 @@ def __get_scoreboard() -> int:
     )
 
 
-def __periodic():
+def __periodic(app):
     threading.current_thread().name = "Timer"
-    next_update = __get_scoreboard()
+
+    if app:
+        with app.app_context():
+            next_update = __get_scoreboard()
+    else:
+        next_update = __get_scoreboard()
+
     if next_update > 0:
-        threading.Timer(next_update, __periodic).start()
+        threading.Timer(next_update, lambda: __periodic(app)).start()
 
 
-def start_updater():
+def start_updater(app):
     if not os.environ.get("WERKZEUG_RUN_MAIN"):
-        threading.Timer(0, __periodic).start()
+        threading.Timer(0, lambda: __periodic(app)).start()
 
 
 if __name__ == "__main__":

@@ -2,4 +2,4 @@
 disable=missing-function-docstring,missing-module-docstring,missing-class-docstring,too-few-public-methods
 
 [TYPECHECK]
-generated-members=add,commit,query
+generated-members=add,commit,query,close

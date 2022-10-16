@@ -9,18 +9,15 @@ from app.database import Session
 from app.enums.week_type import WeekType
 from app.models import Match, MatchResult, User
 from app.repositories.match import get_matches_for_team, get_matches_for_week
-from app.repositories.predictions import (
-    choice_to_string,
-    get_predictions,
-    get_predictions_for_match,
-    is_game_started,
-    upsert_prediction,
-)
+from app.repositories.predictions import (choice_to_string, get_predictions,
+                                          get_predictions_for_match,
+                                          is_game_started, upsert_prediction)
 from app.repositories.results import result_is_ot
 from app.repositories.scoreboard import get_scoreboard_for_match
 from app.repositories.team_repository import TeamInfo, TeamRepository
 from app.repositories.user import get_all_users
-from app.repositories.week import get_all_weeks_in_year, get_current_week, get_week
+from app.repositories.week import (get_all_weeks_in_year, get_current_week,
+                                   get_week)
 from app.utils.rendering import render
 from app.utils.time import get_request_time
 
@@ -91,10 +88,12 @@ def week_matches(user: User, week_name: str):
     if not week:
         abort(404)
 
-    save_requested = (request.method == "POST")
+    save_requested = request.method == "POST"
     total_requested, total_saved = 0, 0
     if save_requested:
-        total_requested, total_saved = process_picks(request.form, user.id, request_time)
+        total_requested, total_saved = process_picks(
+            request.form, user.id, request_time
+        )
 
     matches = get_matches_for_week(week=week.id)
 
@@ -132,8 +131,6 @@ def week_matches(user: User, week_name: str):
         save_requested=save_requested,
         total_requested=total_requested,
         total_saved=total_saved,
-        points_color=points_color,
-        score_color=score_color,
     )
 
 
@@ -247,20 +244,3 @@ def process_picks(picks: dict, user_id: int, request_time: datetime) -> (int, in
 
     Session.commit()
     return (total_requested, total_saved)
-
-
-def points_color(points: int) -> str:
-    return "green" if points >= 0 else "red"
-
-
-def score_color(score: int, total: int) -> str:
-    if total == 0:
-        return "unset"
-
-    pct = score / total
-    if pct > 0.6:
-        return "green"
-    if pct > 0.4:
-        return "orange"
-
-    return "red"

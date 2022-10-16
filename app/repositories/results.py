@@ -2,6 +2,7 @@ from typing import Any, Dict, List
 
 from app.database import Session
 from app.models import MatchResult
+from app.repositories.score import invalidate_cache
 
 values = ["home", "away"]
 
@@ -35,6 +36,8 @@ def upsert_result(match_id: int, home_score: int, away_score: int, is_ot: bool) 
                 result_type=result_type,
             )
         )
+
+    invalidate_cache(match_id)
 
 
 def get_result_type(home_score: int, away_score: int, is_ot: bool) -> int:
