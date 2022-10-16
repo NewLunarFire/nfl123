@@ -12,16 +12,23 @@ from app.routes.user import user_blueprint
 from app.updater import start_updater
 from app.utils.time import to_eastern
 
+from app.routes.redirect import redirect_routes
+from os import environ
+
 app = Flask(__name__)
 app.secret_key = "patatepoil"
 
-app.register_blueprint(index_blueprint)
-app.register_blueprint(error_blueprint)
-app.register_blueprint(lang_blueprint)
-app.register_blueprint(match_blueprint)
-app.register_blueprint(standings_blueprint)
-app.register_blueprint(user_blueprint)
-app.register_blueprint(result_blueprint)
+redirect_url = environ.get("REDIRECT_URL", None)
+if redirect_url:
+    redirect_routes(app, redirect_url)
+else:
+    app.register_blueprint(index_blueprint)
+    app.register_blueprint(error_blueprint)
+    app.register_blueprint(lang_blueprint)
+    app.register_blueprint(match_blueprint)
+    app.register_blueprint(standings_blueprint)
+    app.register_blueprint(user_blueprint)
+    app.register_blueprint(result_blueprint)
 
 
 @app.before_request
