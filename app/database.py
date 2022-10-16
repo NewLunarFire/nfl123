@@ -13,7 +13,7 @@ connect_args = {}
 if database.startswith("sqlite://"):
     connect_args = {"check_same_thread": False}
 
-engine = create_engine(database, connect_args=connect_args)
+engine = create_engine(database, connect_args=connect_args, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Session = scoped_session(SessionLocal, scopefunc=_app_ctx_stack.__ident_func__)
 
