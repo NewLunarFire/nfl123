@@ -179,7 +179,7 @@
 {%- endmacro %}
 
 {% macro team_logo(logo) -%}
-<img class="logo" src="{{ url_for('static', filename=logo) }}" />
+<img class="logo" src="{{ url_for('static', filename='logo/' + logo) }}" />
 {%- endmacro %}
 
 {% macro win_record(record) -%}
