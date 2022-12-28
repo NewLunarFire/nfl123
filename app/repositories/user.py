@@ -3,12 +3,19 @@ from typing import List
 from app.database import Session
 from app.models import User
 
+from sqlalchemy.exc import PendingRollbackError
+
 
 def get_all_users() -> List[User]:
     return Session.query(User).all()
 
 
 def get_user(user_id: int) -> User:
+    try:
+        _ = Session.connection()
+    except PendingRollbackError:
+        Session.rollback()
+
     return Session.query(User).filter_by(id=user_id).first()
 
 

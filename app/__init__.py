@@ -5,6 +5,7 @@ from flask import Flask, g
 
 from app.routes.admin.result import result_blueprint
 from app.routes.error import error_blueprint
+from app.routes.health import health_blueprint
 from app.routes.index import index_blueprint
 from app.routes.lang import lang_blueprint
 from app.routes.match import match_blueprint
@@ -22,6 +23,7 @@ redirect_url = environ.get("REDIRECT_URL", None)
 if redirect_url:
     redirect_routes(app, redirect_url)
 else:
+    app.register_blueprint(health_blueprint)
     app.register_blueprint(index_blueprint)
     app.register_blueprint(error_blueprint)
     app.register_blueprint(lang_blueprint)

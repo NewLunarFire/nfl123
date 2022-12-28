@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1>{% if error %}Error{% else %}OK{% endif %}</h1>
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

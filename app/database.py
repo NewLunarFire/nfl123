@@ -9,11 +9,7 @@ database: str = environ["DATABASE_URL"]
 if database.startswith("postgres://"):
     database = database.replace("postgres://", "postgresql://")
 
-connect_args = {}
-if database.startswith("sqlite://"):
-    connect_args = {"check_same_thread": False}
-
-engine = create_engine(database, connect_args=connect_args, pool_pre_ping=True)
+engine = create_engine(database, pool_recycle=1800)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Session = scoped_session(SessionLocal, scopefunc=_app_ctx_stack.__ident_func__)
 

@@ -117,8 +117,8 @@ def __get_scoreboard() -> int:
                         home_score=home_score,
                         is_ot=is_ot,
                     )
-                    Session.commit()  # Commit score updates
 
+    Session.commit()  # Commit score updates
     Session.close()
     return __next_update_time(
         matches_in_progress="in" in set(event["status"] for event in nfl["events"])
