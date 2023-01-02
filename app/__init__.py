@@ -13,7 +13,6 @@ from app.routes.redirect import redirect_routes
 from app.routes.standings import standings_blueprint
 from app.routes.sw import sw_blueprint
 from app.routes.user import user_blueprint
-from app.updater import start_updater
 from app.utils.time import to_eastern
 
 app = Flask(__name__)
@@ -52,6 +51,3 @@ def to_eastern_time(date_time, granularity="minutes"):
         date_format = date_format + ":%S"
 
     return to_eastern(date_time, format=date_format)
-
-
-start_updater(app)
