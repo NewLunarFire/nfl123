@@ -7,7 +7,7 @@ from flask import Blueprint, abort, redirect, request
 from app.authentication import authenticated
 from app.database import Session
 from app.enums.week_type import WeekType
-from app.models import Match, MatchResult, User
+from app.models import Match, MatchResult, Prediction, User
 from app.repositories.match import get_matches_for_team, get_matches_for_week
 from app.repositories.predictions import (
     choice_to_string,
@@ -56,6 +56,7 @@ class MatchInfo:
 
     user_pick: str
     user_result: MatchUserResult
+    user_points: int
 
     other_picks_home: List[str]
     other_picks_away: List[str]
@@ -102,7 +103,7 @@ def week_matches(user: User, week_name: str):
 
     predictions = (
         {
-            prediction.match_id: choice_to_string(prediction.pick)
+            prediction.match_id: prediction
             for prediction in get_predictions(
                 match_ids=[match.id for match in matches], user_id=user.id
             )
@@ -116,6 +117,9 @@ def week_matches(user: User, week_name: str):
         to_match_info(match, predictions.get(match.id), users=users)
         for match in matches
     ]
+
+    print(matches)
+
     points = sum(match.get_user_score() for match in matches)
     score = sum(match.get_user_win() for match in matches)
     total_matches = sum(match.is_final() for match in matches)
@@ -126,7 +130,6 @@ def week_matches(user: User, week_name: str):
         weeks=get_all_weeks_in_year(year=2022),
         week=week,
         matches=matches,
-        predictions=predictions,
         points=points,
         score=score,
         total_matches=total_matches,
@@ -137,7 +140,7 @@ def week_matches(user: User, week_name: str):
     )
 
 
-def to_match_info(match: Match, pick: str, users: List[User]) -> MatchInfo:
+def to_match_info(match: Match, user_prediction: Prediction, users: List[User]) -> MatchInfo:
     result = None
     user_dict = {user.id: user.name for user in users}
 
@@ -166,8 +169,9 @@ def to_match_info(match: Match, pick: str, users: List[User]) -> MatchInfo:
         start_time=match.start_time,
         is_locked=is_locked,
         result=result,
-        user_pick=pick,
-        user_result=match_user_result(match, pick),
+        user_pick=choice_to_string(user_prediction.pick) if user_prediction.pick else None,
+        user_result=match_user_result(match, user_prediction.pick),
+        user_points=user_prediction.points.points,
         other_picks_away=other_picks_away,
         other_picks_home=other_picks_home,
         scoreboard=get_scoreboard_for_match(match.id),
@@ -230,20 +234,34 @@ def get_team_record(team_id: int):
     return (win, loss, tie)
 
 
-def process_picks(picks: dict, user_id: int, request_time: datetime) -> (int, int):
-    total_requested = 0
+def process_picks(form: dict, user_id: int, request_time: datetime) -> Tuple[int, int]:
+    picks = {}
+
     total_saved = 0
 
-    for key, value in picks.items():
+    for key, value in form.items():
+        if key.startswith("points_"):
+            match_id = int(key[7:])
+            if not match_id in picks:
+                picks[match_id] = {"points": -1, "choice": -1}
+            
+            picks[match_id]["points"] = value
+
         if key.startswith("match_"):
             match_id = int(key[6:])
-            total_requested += 1
-            total_saved += upsert_prediction(
-                match_id=match_id,
-                user_id=user_id,
-                choice=value,
-                request_time=request_time,
-            )
+            if not match_id in picks:
+                picks[match_id] = {"points": -1, "choice": -1}
+
+            picks[match_id]["choice"] = value
+
+    for match_id, value in picks.items():
+        total_saved += upsert_prediction(
+            match_id=match_id,
+            user_id=user_id,
+            choice=value["choice"],
+            points=value["points"],
+            request_time=request_time,
+        )
 
     Session.commit()
-    return (total_requested, total_saved)
+    return (len(picks), total_saved)

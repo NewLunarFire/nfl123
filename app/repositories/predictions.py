@@ -4,7 +4,7 @@ from typing import List, Literal
 from pytz import utc
 
 from app.database import Session
-from app.models import Match, Prediction
+from app.models import Match, Prediction, PlayoffPoints
 from app.repositories.match import get_match
 
 values = ["home", "away"]
@@ -20,7 +20,7 @@ def get_predictions(match_ids: List[int], user_id: int) -> List[Prediction]:
 
 
 def upsert_prediction(
-    match_id: int, user_id: int, choice: Literal["home", "away"], request_time: datetime
+    match_id: int, user_id: int, choice: Literal["home", "away"], points: int, request_time: datetime
 ) -> bool:
     if choice not in ["home", "away"]:
         return False
@@ -42,6 +42,22 @@ def upsert_prediction(
         # Insert
         Session.add(
             Prediction(match_id=match_id, user_id=user_id, pick=values.index(choice))
+        )
+
+    playoff_points: PlayoffPoints = (
+        Session.query(PlayoffPoints)
+        .filter_by(match_id=match_id)
+        .filter_by(user_id=user_id)
+        .first()
+    )
+
+    if playoff_points:
+        # Update
+        playoff_points.points = points
+    else:
+        # Insert
+        Session.add(
+            PlayoffPoints(match_id=match_id, user_id=user_id, points=points)
         )
 
     return True

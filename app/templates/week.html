@@ -116,7 +116,7 @@
         <div class="block">
             <div class="columns is-vcentered">
                 {{ away_team(match) }}
-                <div class="column is-narrow-tablet" style="text-align: center;">
+                <div class="column is-narrow" style="text-align: center;">
                     {% if match.is_final() %}
                         {{ match_score(match.result.away_score, match.result.home_score, "Final/OT" if match.result.is_ot else "Final") }} <br />
                         <span class="{{ 'win' if match.user_result.win else 'loss' }}">{{ "%+d"|format(match.user_result.score) }}</span>
@@ -131,6 +131,9 @@
                     
                 </div>
                 {{ home_team(match) }}
+                {% if week.type|string == "WeekType.playoffs" %}
+                  {{ playoff_points(match) }}
+                {% endif %}
             </div>
             <div class="columns is-mobile">
                 <div class="column is-full" style="text-align: center;">{{ match.start_time | to_eastern_time }}</div>
@@ -144,7 +147,7 @@
 
 {% macro away_team(match) -%}
 <div class="column">
-    {% set is_checked = predictions[match.id] == "away" %}    
+    {% set is_checked = match.user_pick == "away" %}    
     {{ hidden_radio(match_id=match.id, side="away", checked=is_checked, disabled=match.is_locked) }}
     {% call team_label(match, "away", is_checked) %}
         {{ win_record(match.away_team_record) }}
@@ -160,7 +163,7 @@
 
 {% macro home_team(match) -%}
 <div class="column">
-    {% set is_checked = predictions[match.id] == "home" %}    
+    {% set is_checked = match.user_pick == "home" %}    
     {{ hidden_radio(match_id=match.id, side="home", checked=is_checked, disabled=match.is_locked) }}    
     {% call team_label(match, "home", is_checked) %}
         {{ team_logo(match.home_team.logo()) }}
@@ -214,4 +217,18 @@
 <label class="box column {{ label_classes | join(' ') }}" for="match_{{ match.id }}_{{ side }}" {% if match.is_locked %}title="{{ gettext("tooltip_locked") }}"{% endif %}>
     {{ caller() }}
 </label>
+{%- endmacro %}
+
+{% macro playoff_points(match) -%}
+    {% set max = {"WC": 4, "DF": 4, "CF": 5, "SB": 10}[week.display_name] %}
+    <div class="column is-narrow" style="text-align: center;">
+        <div class="select">
+            <select name="points_{{ match.id }}" id="points_{{ match.id }}">
+                {% for val in range(1, max+1) %}
+                {% set selected = (match.user_points == val) %}
+                <option value="{{ val }}" {% if selected %}selected="selected" style="font-weight: bold"{% endif %}>{{ val }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
 {%- endmacro %}

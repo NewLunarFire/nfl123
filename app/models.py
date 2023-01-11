@@ -57,6 +57,7 @@ class Prediction(Base):
     match_id = Column("match_id", Integer, primary_key=True)
     user_id = Column("user_id", Integer, primary_key=True)
     pick = Column("pick", Integer)
+    points = relationship("PlayoffPoints", uselist=False, primaryjoin="and_(foreign(Prediction.match_id) == remote(PlayoffPoints.match_id), foreign(Prediction.user_id) == remote(PlayoffPoints.user_id))")
 
     def __repr__(self):
         return (
@@ -77,3 +78,11 @@ class Week(Base):
     year = Column("year", Integer, nullable=False)
     type = Column("type", Enum(WeekType), nullable=False)
     start_time = Column("start_time", DateTime, nullable=False)
+
+class PlayoffPoints(Base):
+    __tablename__ = "playoff_points"
+
+    match_id = Column("match_id", Integer, primary_key=True, nullable=False)
+    user_id = Column("user_id", Integer, primary_key=True, nullable=False)
+    points = Column("points", Integer, nullable=False)
+    
