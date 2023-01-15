@@ -118,8 +118,6 @@ def week_matches(user: User, week_name: str):
         for match in matches
     ]
 
-    print(matches)
-
     points = sum(match.get_user_score() for match in matches)
     score = sum(match.get_user_win() for match in matches)
     total_matches = sum(match.is_final() for match in matches)
@@ -140,7 +138,9 @@ def week_matches(user: User, week_name: str):
     )
 
 
-def to_match_info(match: Match, user_prediction: Prediction, users: List[User]) -> MatchInfo:
+def to_match_info(
+    match: Match, user_prediction: Prediction, users: List[User]
+) -> MatchInfo:
     result = None
     user_dict = {user.id: user.name for user in users}
 
@@ -162,7 +162,7 @@ def to_match_info(match: Match, user_prediction: Prediction, users: List[User]) 
 
             if points:
                 name = f"{name} [{points.points}]"
-                
+
             (other_picks_away if prediction.pick else other_picks_home).append(name)
 
     return MatchInfo(
@@ -175,17 +175,43 @@ def to_match_info(match: Match, user_prediction: Prediction, users: List[User]) 
         is_locked=is_locked,
         result=result,
         user_pick=choice_to_string(user_prediction.pick) if user_prediction else None,
-        user_result=match_user_result(match, user_prediction.pick) if user_prediction else None,
-        user_points=user_prediction.points.points if user_prediction and user_prediction.points else 0,
+        user_result=match_user_result(match, user_prediction)
+        if user_prediction
+        else None,
+        user_points=user_prediction.points.points
+        if user_prediction and user_prediction.points
+        else 0,
         other_picks_away=other_picks_away,
         other_picks_home=other_picks_home,
         scoreboard=get_scoreboard_for_match(match.id),
     )
 
 
-def match_user_result(match: Match, pick: str):
+def calculate_playoff_score(
+    match: Match, user_prediction: Prediction
+) -> MatchUserResult:
+    if not user_prediction:
+        return MatchUserResult(win=False, score=0)
+
+    pick = choice_to_string(user_prediction.pick)
+    points = user_prediction.points.points
+
+    # Calculate if home team won using final score
+    home_win = match.result.home_score > match.result.away_score
+    # Determine if user wins his prediction based on his pick.
+    win = home_win if pick == "home" else not home_win
+
+    return MatchUserResult(win=win, score=points if win else -points)
+
+
+def match_user_result(match: Match, user_prediction: Prediction):
     if not match.result:
         return None
+
+    if match.week_rel.type == WeekType.playoffs:
+        return calculate_playoff_score(match, user_prediction)
+
+    pick = choice_to_string(user_prediction.pick) if user_prediction else None
 
     if pick:
         if pick == "home":
@@ -249,7 +275,7 @@ def process_picks(form: dict, user_id: int, request_time: datetime) -> Tuple[int
             match_id = int(key[7:])
             if not match_id in picks:
                 picks[match_id] = {"points": -1, "choice": -1}
-            
+
             picks[match_id]["points"] = value
 
         if key.startswith("match_"):

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Tuple
 
 from app.logger import logger
-from app.models import Match, User, Week
+from app.models import Match, Prediction, User, Week, WeekType
 from app.repositories.match import get_match, get_matches_for_week
 from app.repositories.predictions import choice_to_string, get_predictions
 
@@ -41,7 +41,7 @@ def invalidate_cache(match_id: int):
 def calculate_week_score(user: User, week: Week):
     matches = get_matches_for_week(week=week.id)
     predictions = {
-        prediction.match_id: choice_to_string(prediction.pick)
+        prediction.match_id: prediction
         for prediction in get_predictions(
             match_ids=[match.id for match in matches], user_id=user.id
         )
@@ -51,19 +51,41 @@ def calculate_week_score(user: User, week: Week):
     win_total = 0
     total_matches = sum(bool(match.result) for match in matches)
     for match in matches:
-        (points, win) = match_user_result(match=match, pick=predictions.get(match.id))
+        (points, win) = match_user_result(
+            match=match, prediction=predictions.get(match.id)
+        )
         points_total += points
         win_total += win
 
     return Score(points=points_total, score=win_total, total_matches=total_matches)
 
 
-def match_user_result(match: Match, pick: str) -> Tuple[int, bool]:
+def calculate_playoff_score(
+    match: Match, user_prediction: Prediction
+) -> Tuple[int, bool]:
+    if not user_prediction:
+        return (0, False)
+
+    pick = choice_to_string(user_prediction.pick)
+    points = user_prediction.points.points
+
+    # Calculate if home team won using final score
+    home_win = match.result.home_score > match.result.away_score
+    # Determine if user wins his prediction based on his pick.
+    win = home_win if pick == "home" else not home_win
+
+    return (points if win else -points, win)
+
+
+def match_user_result(match: Match, prediction: Prediction) -> Tuple[int, bool]:
     if not match.result:
         return (0, False)
 
-    if pick:
-        if pick == "home":
+    if match.week_rel.type == WeekType.playoffs:
+        return calculate_playoff_score(match, prediction)
+
+    if prediction:
+        if prediction.pick == "home":
             return (
                 match.result.home_score - match.result.away_score,
                 match.result.home_score >= match.result.away_score,
