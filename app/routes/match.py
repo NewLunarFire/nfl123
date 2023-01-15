@@ -158,6 +158,11 @@ def to_match_info(match: Match, user_prediction: Prediction, users: List[User]) 
     if is_locked:
         for prediction in get_predictions_for_match(match_id=match.id):
             name = user_dict[prediction.user_id]
+            points = prediction.points
+
+            if points:
+                name = f"{name} [{points.points}]"
+                
             (other_picks_away if prediction.pick else other_picks_home).append(name)
 
     return MatchInfo(
