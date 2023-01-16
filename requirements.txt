@@ -1,4 +1,4 @@
-alembic==1.7.3
+alembic==1.9.2
 click==8.0.1
 Flask==2.0.1
 greenlet==1.1.1
