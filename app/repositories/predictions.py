@@ -20,7 +20,11 @@ def get_predictions(match_ids: List[int], user_id: int) -> List[Prediction]:
 
 
 def upsert_prediction(
-    match_id: int, user_id: int, choice: Literal["home", "away"], points: int, request_time: datetime
+    match_id: int,
+    user_id: int,
+    choice: Literal["home", "away"],
+    points: int,
+    request_time: datetime,
 ) -> bool:
     if choice not in ["home", "away"]:
         return False
@@ -56,9 +60,7 @@ def upsert_prediction(
         playoff_points.points = points
     else:
         # Insert
-        Session.add(
-            PlayoffPoints(match_id=match_id, user_id=user_id, points=points)
-        )
+        Session.add(PlayoffPoints(match_id=match_id, user_id=user_id, points=points))
 
     return True
 

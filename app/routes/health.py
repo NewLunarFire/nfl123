@@ -15,5 +15,8 @@ def login():
     except Exception as ex:
         is_error = True
         error = ex
-    
-    return render("health.html", is_error=is_error, error=error), 500 if is_error else 200
+
+    return (
+        render("health.html", is_error=is_error, error=error),
+        500 if is_error else 200,
+    )

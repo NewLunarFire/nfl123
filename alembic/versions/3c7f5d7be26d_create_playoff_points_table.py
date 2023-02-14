@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3c7f5d7be26d'
-down_revision = '7cce80338914'
+revision = "3c7f5d7be26d"
+down_revision = "7cce80338914"
 branch_labels = None
 depends_on = None
 
@@ -21,7 +21,7 @@ def upgrade():
         "playoff_points",
         sa.Column("match_id", sa.Integer, primary_key=True, nullable=False),
         sa.Column("user_id", sa.Integer, primary_key=True, nullable=False),
-        sa.Column("points", sa.Integer, nullable=False)
+        sa.Column("points", sa.Integer, nullable=False),
     )
 
     pass
